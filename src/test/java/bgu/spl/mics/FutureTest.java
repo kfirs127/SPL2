@@ -21,7 +21,7 @@ public class FutureTest {
     private Future<String> future;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         future = new Future<>();
     }
 
@@ -51,13 +51,23 @@ public class FutureTest {
 
     @Test
     public void testGetTWV(){
-        TimeUnit time = TimeUnit.valueOf("500");
-        String result = future.get(1000, time);
+        String result = future.get(1000 ,  TimeUnit.valueOf("500"));
         assertNull(result);
         String str = "someResult";
         future.resolve(str);
-        result = future.get(1000, time);
+        result = future.get(1000,  TimeUnit.valueOf("500"));
         assertNotNull(result);
     }
 
+    @Test
+    public void testMulti(){
+        String str1 = "firstResult";
+        future.resolve(str1);
+        String str2 = "secondResult";
+        future.resolve(str2);
+        String result1 = future.get();
+        String result2 = future.get(1000 ,  TimeUnit.valueOf("500"));
+        assertTrue(str1.equals(result1) || str1.equals(result2));
+        assertTrue( str2.equals(result1) || str2.equals(result2) );
+    }
 }
