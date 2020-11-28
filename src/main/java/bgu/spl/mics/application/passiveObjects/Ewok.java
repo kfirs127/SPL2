@@ -14,30 +14,12 @@ public class Ewok {
     /**
      * Acquires an Ewok
      */
-    public void acquire() {
-		if(available) available = false;
-    }
+    public void acquire() { available = false; }
 
     /**
      * release an Ewok
      */
-    public void release() {
-        if(!available) available = true;
-    }
+    public void release() { available = true; }
 
-    public boolean getAvailable(){
-        return available;
-    }
-
-    public void setAvailable(boolean available){
-        this.available = available;
-    }
-
-    public int getSerialNumber(){
-        return serialNumber;
-    }
-
-    public void setSerialNumber(int serialNumber){
-        this.serialNumber = serialNumber;
-    }
+    public boolean getAvailable(){ return available;}
 }

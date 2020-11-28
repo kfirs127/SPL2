@@ -24,7 +24,38 @@ public class EwokTest {
     }
 
     @Test
-    public void testResolve(){
-
+    public void testAcquire(){
+        ewok.acquire();
+        assertFalse(ewok.getAvailable());
     }
+
+    @Test
+    public void testRelease(){
+        ewok.release();
+        assertTrue(ewok.getAvailable());
+    }
+
+    @Test
+    public void testRelease_Acquire(){
+        ewok.release();
+        ewok.acquire();
+        assertFalse(ewok.getAvailable());
+    }
+
+    @Test
+    public void testAcquire_Release(){
+        ewok.acquire();
+        ewok.release();
+        assertTrue(ewok.getAvailable());
+    }
+
+    @Test
+    public void testMulti(){
+        Ewok secondEwok = new Ewok();
+        ewok.acquire();
+        secondEwok.release();
+        assertTrue(ewok.getAvailable() && !secondEwok.getAvailable());
+    }
+
+
 }

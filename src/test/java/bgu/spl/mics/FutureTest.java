@@ -60,7 +60,7 @@ public class FutureTest {
     }
 
     @Test
-    public void testMulti(){
+    public void testMultiResolve(){
         String str1 = "firstResult";
         future.resolve(str1);
         String str2 = "secondResult";
@@ -69,5 +69,18 @@ public class FutureTest {
         String result2 = future.get(1000 ,  TimeUnit.valueOf("500"));
         assertTrue(str1.equals(result1) || str1.equals(result2));
         assertTrue( str2.equals(result1) || str2.equals(result2) );
+    }
+
+    @Test
+    public void testMultiFuture(){
+        Future<String> secondFuture = new Future<>();
+        String str1 = "firstResult";
+        future.resolve(str1);
+        String str2 = "secondResult";
+        secondFuture.resolve(str2);
+        String result1 = future.get();
+        String result2 = future.get();
+        assertEquals(str1, result1);
+        assertEquals(str2, result2);
     }
 }
