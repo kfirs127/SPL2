@@ -55,8 +55,8 @@ public class MessageBusTest {
     public void testSubscribeEvent() throws InterruptedException {
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         C3POMicroservice C3PO = new C3POMicroservice();
-        Event<String> event1 = new CopyEvent("new event");
-        C3PO.subscribeEvent(event1.getClass() , ()->{} );
+        CopyEvent event1 = new CopyEvent("new event");
+        messageBus.subscribeEvent(event1.getClass() , hanSolo );
         Future<String> future = hanSolo.sendEvent(event1);
         Message event2 = messageBus.awaitMessage(C3PO);
         assertEquals(event1 , event2);
@@ -93,7 +93,7 @@ public class MessageBusTest {
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         C3POMicroservice C3PO = new C3POMicroservice();
         Broadcast broadcast1 = new CopyBroadcast("new broadcast");
-        C3PO.subscribeEvent(broadcast1.getClass() , ()->{} );
+        messageBus.subscribeBroadcast(broadcast1.getClass() , C3PO);
         hanSolo.sendBroadcast(broadcast1);
         Message broadcast2 = messageBus.awaitMessage(C3PO);
         assertEquals( broadcast1 , broadcast2);
