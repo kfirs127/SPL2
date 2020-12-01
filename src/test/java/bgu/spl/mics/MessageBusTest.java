@@ -58,7 +58,7 @@ public class MessageBusTest {
         C3POMicroservice C3PO = new C3POMicroservice();
         CopyEvent event1 = new CopyEvent("new event");
         messageBus.subscribeEvent(event1.getClass()  , hanSolo );
-        Future<String> future = hanSolo.sendEvent(event1);
+        Future<String> future = C3PO.sendEvent(event1);
         future.resolve(event1.getEventName());
         assertEquals(event1.getEventName() , future.get() );
     }
