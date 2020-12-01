@@ -2,10 +2,10 @@ package bgu.spl.mics.application;
 
 import bgu.spl.mics.Broadcast;
 
-public class CopyBroadcast implements Broadcast {
+public class StringBroadcast implements Broadcast { // class just for test
     private String broadcastName;
 
-    public CopyBroadcast(String broadcastName) {
+    public StringBroadcast(String broadcastName) {
         this.broadcastName = broadcastName;
     }
 

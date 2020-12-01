@@ -1,11 +1,13 @@
 package bgu.spl.mics;
 
-import bgu.spl.mics.application.CopyBroadcast;
+import bgu.spl.mics.application.StringBroadcast;
+import bgu.spl.mics.application.StringBroadcast;
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.passiveObjects.Ewok;
 import bgu.spl.mics.application.services.C3POMicroservice;
-import bgu.spl.mics.application.services.CopyEvent;
+import bgu.spl.mics.application.services.StringEvent;
 import bgu.spl.mics.application.services.HanSoloMicroservice;
+import bgu.spl.mics.application.services.StringEvent;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -45,7 +47,7 @@ public class MessageBusTest {
     public void testSubscribeEvent() throws InterruptedException {
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         C3POMicroservice C3PO = new C3POMicroservice();
-        CopyEvent event1 = new CopyEvent("new event");
+        StringEvent event1 = new StringEvent("new event");
         messageBus.subscribeEvent(event1.getClass()  , hanSolo );
         Future<String> future = hanSolo.sendEvent(event1);
         Message event2 = messageBus.awaitMessage(C3PO);
@@ -56,7 +58,7 @@ public class MessageBusTest {
     public void testSubscribeEventFuture(){
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         C3POMicroservice C3PO = new C3POMicroservice();
-        CopyEvent event1 = new CopyEvent("new event");
+        StringEvent event1 = new StringEvent("new event");
         messageBus.subscribeEvent(event1.getClass()  , hanSolo );
         Future<String> future = C3PO.sendEvent(event1);
         future.resolve(event1.getEventName());
@@ -67,7 +69,7 @@ public class MessageBusTest {
     public void testBroadcast() throws InterruptedException{
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         messageBus.register(hanSolo);
-        Broadcast broadcast = new CopyBroadcast("new broadcast");
+        StringBroadcast broadcast = new StringBroadcast("new broadcast");
         messageBus.sendBroadcast(broadcast);
         Message message = messageBus.awaitMessage(hanSolo);
         assertEquals(broadcast , message);
@@ -77,7 +79,7 @@ public class MessageBusTest {
     public void testSubscribeBroadcast()throws InterruptedException{
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         C3POMicroservice C3PO = new C3POMicroservice();
-        Broadcast broadcast1 = new CopyBroadcast("new broadcast");
+        Broadcast broadcast1 = new StringBroadcast("new broadcast");
         messageBus.subscribeBroadcast(broadcast1.getClass() , C3PO);
         hanSolo.sendBroadcast(broadcast1);
         Message broadcast2 = messageBus.awaitMessage(C3PO);

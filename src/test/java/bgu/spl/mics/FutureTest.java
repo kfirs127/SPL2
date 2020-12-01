@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.services.StringFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,27 +19,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FutureTest {
 
-    private Future<String> future;
+    private StringFuture future;
 
     @BeforeEach
     public void setUp() {
-        future = new Future<>();
+        future = new StringFuture();
     }
 
     @Test
     public void testResolve(){
         String str = "someResult";
         future.resolve(str);
-        assertTrue(future.isDone());
-        assertTrue(str.equals(future.get()));
-    }
-
-    @Test
-    public void testGetT(){
-        String str = "someResult";
-        future.resolve(str);
-        Object result = future.get();
-        assertEquals(future , result);
+        assertTrue(future.isDone() && str.equals(future.get()));
     }
 
     @Test
@@ -51,11 +43,11 @@ public class FutureTest {
 
     @Test
     public void testGetTWV(){
-        String result = future.get(1000 ,  TimeUnit.valueOf("500"));
+        String result = future.get(1000 , TimeUnit.MILLISECONDS);
         assertNull(result);
         String str = "someResult";
         future.resolve(str);
-        result = future.get(1000,  TimeUnit.valueOf("500"));
+        result = future.get(1000,  TimeUnit.MILLISECONDS);
         assertNotNull(result);
     }
 
@@ -66,21 +58,18 @@ public class FutureTest {
         String str2 = "secondResult";
         future.resolve(str2);
         String result1 = future.get();
-        String result2 = future.get(1000 ,  TimeUnit.valueOf("500"));
-        assertTrue(str1.equals(result1) || str1.equals(result2));
-        assertTrue( str2.equals(result1) || str2.equals(result2) );
+        String result2 = future.get(1000 ,TimeUnit.MILLISECONDS);
+        assertTrue(result1.equals(str1) || result1.equals(result2));
     }
 
     @Test
     public void testMultiFuture(){
-        Future<String> secondFuture = new Future<>();
+        StringFuture secondFuture = new StringFuture();
         String str1 = "firstResult";
         future.resolve(str1);
         String str2 = "secondResult";
         secondFuture.resolve(str2);
-        String result1 = future.get();
-        String result2 = future.get();
-        assertEquals(str1, result1);
-        assertEquals(str2, result2);
+        assertEquals(str1, future.get());
+        assertEquals(str2, secondFuture.get());
     }
 }

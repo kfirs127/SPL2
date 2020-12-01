@@ -2,10 +2,10 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Event;
 
-public class CopyEvent implements Event<String>{
+public class StringEvent implements Event<String>{   // class just for test
     private String eventName;
 
-    public CopyEvent(String senderName) {
+    public StringEvent(String senderName) {
         this.eventName = senderName;
     }
 
