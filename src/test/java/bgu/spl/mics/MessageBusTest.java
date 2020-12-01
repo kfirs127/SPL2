@@ -42,24 +42,25 @@ public class MessageBusTest {
     }
 
     @Test
-    public void testComplete(){
-        HanSoloMicroservice hanSolo = new HanSoloMicroservice();
-        messageBus.register(hanSolo);
-        Event<Boolean> event = new AttackEvent();
-        Future<Boolean> future = messageBus.sendEvent(event);
-        messageBus.complete(event , true);
-        assertTrue(future.isDone());
-    }
-
-    @Test
     public void testSubscribeEvent() throws InterruptedException {
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
         C3POMicroservice C3PO = new C3POMicroservice();
         CopyEvent event1 = new CopyEvent("new event");
-        messageBus.subscribeEvent(event1.getClass() , hanSolo );
+        messageBus.subscribeEvent(event1.getClass()  , hanSolo );
         Future<String> future = hanSolo.sendEvent(event1);
         Message event2 = messageBus.awaitMessage(C3PO);
         assertEquals(event1 , event2);
+    }
+
+    @Test
+    public void testSubscribeEventFuture(){
+        HanSoloMicroservice hanSolo = new HanSoloMicroservice();
+        C3POMicroservice C3PO = new C3POMicroservice();
+        CopyEvent event1 = new CopyEvent("new event");
+        messageBus.subscribeEvent(event1.getClass()  , hanSolo );
+        Future<String> future = hanSolo.sendEvent(event1);
+        future.resolve(event1.getEventName());
+        assertEquals(event1.getEventName() , future.get() );
     }
 
     @Test
@@ -70,6 +71,17 @@ public class MessageBusTest {
         messageBus.sendBroadcast(broadcast);
         Message message = messageBus.awaitMessage(hanSolo);
         assertEquals(broadcast , message);
+    }
+
+    @Test
+    public void testSubscribeBroadcast()throws InterruptedException{
+        HanSoloMicroservice hanSolo = new HanSoloMicroservice();
+        C3POMicroservice C3PO = new C3POMicroservice();
+        Broadcast broadcast1 = new CopyBroadcast("new broadcast");
+        messageBus.subscribeBroadcast(broadcast1.getClass() , C3PO);
+        hanSolo.sendBroadcast(broadcast1);
+        Message broadcast2 = messageBus.awaitMessage(C3PO);
+        assertEquals( broadcast1 , broadcast2);
     }
 
     @Test
@@ -89,14 +101,12 @@ public class MessageBusTest {
     }
 
     @Test
-    public void testSubscribeBroadcast()throws InterruptedException{
+    public void testComplete(){
         HanSoloMicroservice hanSolo = new HanSoloMicroservice();
-        C3POMicroservice C3PO = new C3POMicroservice();
-        Broadcast broadcast1 = new CopyBroadcast("new broadcast");
-        messageBus.subscribeBroadcast(broadcast1.getClass() , C3PO);
-        hanSolo.sendBroadcast(broadcast1);
-        Message broadcast2 = messageBus.awaitMessage(C3PO);
-        assertEquals( broadcast1 , broadcast2);
+        messageBus.register(hanSolo);
+        Event<Boolean> event = new AttackEvent();
+        Future<Boolean> future = messageBus.sendEvent(event);
+        messageBus.complete(event , true);
+        assertTrue(future.isDone());
     }
-
 }
