@@ -26,13 +26,15 @@ public class EwokTest {
     @Test
     public void testAcquire(){
         ewok.acquire();
-        assertFalse(ewok.getAvailable());
+        ewok.setSerialNumber(4);
+        assertFalse(ewok.getAvailable() && ewok.getSerialNumber() == 3);
     }
 
     @Test
     public void testRelease(){
         ewok.release();
-        assertTrue(ewok.getAvailable());
+        ewok.setSerialNumber(4);
+        assertTrue(ewok.getAvailable() && ewok.getSerialNumber() == 4);
     }
 
     @Test
@@ -50,12 +52,26 @@ public class EwokTest {
     }
 
     @Test
-    public void testMulti(){
+    public void towSetSerialNumber(){
+        ewok.setSerialNumber(3);
+        ewok.setSerialNumber(4);
+        assertEquals(ewok.getSerialNumber(), 4);
+    }
+
+    @Test
+    public void testMultiEwokBool(){
         Ewok secondEwok = new Ewok();
         ewok.acquire();
         secondEwok.release();
-        assertTrue(ewok.getAvailable() && !secondEwok.getAvailable());
+        assertTrue(!ewok.getAvailable() && secondEwok.getAvailable());
     }
 
 
+    @Test
+    public void testMultiEwokInt(){
+        Ewok secondEwok = new Ewok();
+        ewok.setSerialNumber(3);
+        secondEwok.setSerialNumber(4);
+        assertTrue(ewok.getSerialNumber() == 3 && secondEwok.getSerialNumber() == 4);
+    }
 }

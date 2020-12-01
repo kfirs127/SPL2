@@ -22,4 +22,9 @@ public class Ewok {
     public void release() { available = true; }
 
     public boolean getAvailable(){ return available;}
+
+    public void setSerialNumber(int serialNumber){
+        this.serialNumber = serialNumber;
+    }
+    public int getSerialNumber(){ return serialNumber;}
 }
