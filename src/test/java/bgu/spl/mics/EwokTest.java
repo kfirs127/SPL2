@@ -27,7 +27,7 @@ public class EwokTest {
     public void testAcquire(){
         ewok.acquire();
         ewok.setSerialNumber(4);
-        assertFalse(ewok.getAvailable() && ewok.getSerialNumber() == 3);
+        assertFalse(ewok.getAvailable() && ewok.getSerialNumber() != 4);
     }
 
     @Test

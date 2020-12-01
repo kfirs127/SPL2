@@ -27,7 +27,5 @@ public class StringFuture extends Future<String>{  // class for test , copy the 
         return isDone;
     }
 
-    public String get(long timeout, TimeUnit unit) {
-        return result;
-    }
+    public String get(long timeout, TimeUnit unit) { return result; }
 }
