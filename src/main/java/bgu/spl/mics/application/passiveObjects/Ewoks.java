@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.util.LinkedList;
 
 /**
  * Passive object representing the resource manager.
@@ -10,5 +11,24 @@ package bgu.spl.mics.application.passiveObjects;
  * You can add ONLY private methods and fields to this class.
  */
 public class Ewoks {
+    private static Ewoks INSTANCE;
+    private LinkedList<Ewok> Ewoks;
+    private  LinkedList<Ewok> inUse;
+
+    public static Ewoks getInstance(){
+        if(INSTANCE==null)
+            INSTANCE=new Ewoks();
+        return INSTANCE;
+    }
+
+    private Ewoks(){
+        Ewoks = new LinkedList<>();
+        inUse = new LinkedList<>();
+    }
+
+   /* private void addEwok(Ewok e){
+        Ewoks.add(e);
+    }*/
+
 
 }
