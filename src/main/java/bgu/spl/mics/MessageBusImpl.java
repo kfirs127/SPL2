@@ -59,7 +59,10 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		
-		return null;
+		while(queues.get(m.getClass()).size()==0)
+		{
+			m.wait(); //waiting for message
+		}
+			return queues.get(m.getClass()).removeFirst(); //returns the first message available
 	}
 }
