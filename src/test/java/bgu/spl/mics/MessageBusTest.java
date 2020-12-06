@@ -1,23 +1,12 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.StringBroadcast;
-import bgu.spl.mics.application.StringBroadcast;
 import bgu.spl.mics.application.messages.AttackEvent;
-import bgu.spl.mics.application.passiveObjects.Ewok;
 import bgu.spl.mics.application.services.C3POMicroservice;
 import bgu.spl.mics.application.services.StringEvent;
 import bgu.spl.mics.application.services.HanSoloMicroservice;
-import bgu.spl.mics.application.services.StringEvent;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.AfterAll;
-
 import org.junit.jupiter.api.Test;
-import sun.plugin2.jvm.RemoteJVMLauncher;
-
-import java.util.concurrent.TimeUnit;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +17,7 @@ public class MessageBusTest {
 
     @BeforeEach
     public void setUp() {
-       messageBus = new MessageBusImpl();
+       messageBus = MessageBusImpl.getInstance();
     }
 
     @Test
