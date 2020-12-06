@@ -24,14 +24,13 @@ public abstract class MicroService implements Runnable {
 
     private String name;
     private MessageBusImpl messageBus;
+    private Class<E> ;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
      */
-    public MicroService(String name) {
-    	this.name = name;
-    }
+    public MicroService(String name) {this.name = name;}
 
     /**
      * Subscribes to events of type {@code type} with the callback
@@ -55,7 +54,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-    	
+    	messageBus.subscribeEvent(type , this);
     }
 
     /**
@@ -79,7 +78,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-    	
+        messageBus.subscribeBroadcast(type , this);
     }
 
     /**
@@ -139,17 +138,13 @@ public abstract class MicroService implements Runnable {
      * @return the name of the service - the service name is given to it in the
      *         construction time and is used mainly for debugging purposes.
      */
-    public final String getName() {
-        return null;
-    }
+    public final String getName() { return name;}
 
     /**
      * The entry point of the micro-service. TODO: you must complete this code
      * otherwise you will end up in an infinite loop.
      */
     @Override
-    public final void run() {
-    	
-    }
+    public final void run() {}
 
 }
