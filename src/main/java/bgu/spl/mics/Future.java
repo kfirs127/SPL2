@@ -13,12 +13,13 @@ import java.util.concurrent.TimeUnit;
 public class Future<T> {
 	private boolean isDone;
     private T result;
-	
+    private Object lock_isDone;
 	/**
 	 * This should be the the only public constructor in this class.
 	 */
 	public Future() {
-		
+		isDone = false;
+		result = null;
 	}
 	
 	/**
@@ -29,15 +30,18 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public T get() {
-        return null; 
+	public synchronized T get() throws InterruptedException {
+		if(!isDone) wait();
+		return result;
 	}
 	
 	/**
      * Resolves the result of this Future object.
      */
 	public void resolve (T result) {
-		
+		this.result = result;
+		isDone = true;
+		notifyAll();
 	}
 	
 	/**
@@ -58,8 +62,11 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
-	public T get(long timeout, TimeUnit unit) {
-        return null;
+	public T get(long timeout, TimeUnit unit) throws InterruptedException {
+        if(isDone) return result;
+        unit.timedWait(isDone() , timeout);
+       // unit.sleep(timeout);
+        return result;
 	}
 
 }
