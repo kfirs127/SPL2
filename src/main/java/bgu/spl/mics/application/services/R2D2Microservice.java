@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -20,10 +21,6 @@ public class R2D2Microservice extends MicroService {
 
     @Override
     protected void initialize() {
-
-    }
-    public void act(){
-
 
     }
 
