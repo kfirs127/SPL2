@@ -6,6 +6,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import bgu.spl.mics.application.passiveObjects.Attack;
+import bgu.spl.mics.application.passiveObjects.Ewoks;
+import bgu.spl.mics.application.services.LandoMicroservice;
+import bgu.spl.mics.application.services.LeiaMicroservice;
+import bgu.spl.mics.application.services.R2D2Microservice;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,27 +31,39 @@ public class Main {
 		JSONParser jsonParser = new JSONParser();
 		String inputDirection = "C:\\Users\\barda\\Desktop\\input.json";
 		String contents = new String((Files.readAllBytes(Paths.get(inputDirection))));
-		Long a;
-		LinkedList<Attack> attack=new LinkedList<>();
+		Attack[] attacks;
+		int place=0;
 		try {
-			JSONObject jsonObject = (JSONObject)jsonParser.parse(contents);
-			JSONArray jsonArray = (JSONArray) jsonObject.get("attacks");
-			//Iterating the contents of the array
-			Iterator<JSONObject> iterator = jsonArray.iterator();
-			while(iterator.hasNext()) {
+			JSONObject jsonObject = (JSONObject) jsonParser.parse(contents);
+			Long r2d2D=(Long) jsonObject.get("R2D2");
+			Long landoD=(Long) jsonObject.get("Lando");
+			Long ewoksN=(Long) jsonObject.get("Ewoks");
+			JSONArray attacksArray = (JSONArray) jsonObject.get("attacks");
+			attacks = new Attack[attacksArray.size()];
+			Iterator<JSONObject> iterator = attacksArray.iterator(); //Iterating the contents of the array
+			while (iterator.hasNext()) {
 				JSONObject objec = (JSONObject) iterator.next();
-				a = (Long) objec.get("duration");
 				JSONArray ewoks = (JSONArray) objec.get("serials");
-				LinkedList<Integer> serial = new LinkedList();
+				LinkedList<Integer> serial = new LinkedList<>();
 				for (int i = 0; i < ewoks.size(); i++) {
-					Long temp=(long) ewoks.get(i);
+					Long temp = (Long) ewoks.get(i);
 					serial.add(temp.intValue());
-					attack.add(new Attack(serial, a.intValue()));
 				}
+				attacks[place] = new Attack(serial, ((Long) objec.get("duration")).intValue());
+				place++;
 			}
-		} catch (ParseException e) {
+			Ewoks supply=Ewoks.getInstance();
+			for(int i=0;i<ewoksN;i++){
+				supply.addEwok();
+			}
+			LeiaMicroservice leia = new LeiaMicroservice(attacks);
+			R2D2Microservice r2d2=new R2D2Microservice(r2d2D);
+			LandoMicroservice lando=new LandoMicroservice(landoD);
+			//initializing everyone else
+			//  String outputName=args[2];
+		}
+		catch (ParseException e) {
 			e.printStackTrace();
 		}
-		//  String outputName=args[2];
 	}
 }

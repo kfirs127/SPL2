@@ -10,7 +10,10 @@ public class Ewok {
 	int serialNumber;
 	boolean available;
 	
-  
+    public Ewok(int serNum){
+        this.serialNumber=serNum;
+        this.available=true;
+    }
     /**
      * Acquires an Ewok
      */

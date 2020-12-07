@@ -12,7 +12,6 @@ import java.util.LinkedList;
 public class Ewoks {
     private static Ewoks INSTANCE;
     private LinkedList<Ewok> Ewoks;
-    private  LinkedList<Ewok> inUse;
 
     public static Ewoks getInstance(){
         if(INSTANCE==null)
@@ -22,12 +21,35 @@ public class Ewoks {
 
     private Ewoks(){
         Ewoks = new LinkedList<>();
-        inUse = new LinkedList<>();
     }
+    public void addEwok(){
+        int num=Ewoks.size()+1;
+        Ewoks.add(new Ewok(num));
+    }
+    public boolean getSupply(Integer [] ewok){
 
-   /* private void addEwok(Ewok e){
-        Ewoks.add(e);
-    }*/
+        for(int i=0; i<ewok.length;i++) {
+            int number = ewok[i];
+            if (!Ewoks.get(number).getAvailable())
+                return false;
+        }
+        for(int i=0; i<ewok.length;i++) {
+            int number = ewok[i];
+            Ewoks.get(number).acquire();
+        }
+        return true;
+    }
+    public boolean releaseSupply(Integer [] ewok){
 
-
+        for(int i=0; i<ewok.length;i++) {
+            int number = ewok[i];
+            if (Ewoks.get(number).getAvailable())
+                return false;
+        }
+        for(int i=0; i<ewok.length;i++) {
+            int number = ewok[i];
+            Ewoks.get(number).acquire();
+        }
+        return true;
+    }
 }

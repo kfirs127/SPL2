@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 public class Future<T> {
 	private boolean isDone;
     private T result;
-    private Object lock_isDone;
 	/**
 	 * This should be the the only public constructor in this class.
 	 */
