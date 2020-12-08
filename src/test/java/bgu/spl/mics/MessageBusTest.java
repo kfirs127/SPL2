@@ -29,7 +29,14 @@ public class MessageBusTest {
         Future<Boolean> future2 = messageBus.sendEvent(event);
         future1.resolve(true);
         future2.resolve(false);
-        assertTrue(future1.get() && !future2.get());
+        boolean result1 = false;
+        boolean result2=true;
+        try {
+             result1=future1.get();
+            result2=!future2.get();
+        }
+        catch(InterruptedException e){}
+        assertEquals(result1,result2);
     }
 
     @Test
@@ -51,7 +58,13 @@ public class MessageBusTest {
         messageBus.subscribeEvent(event1.getClass()  , hanSolo );
         Future<String> future = C3PO.sendEvent(event1);
         future.resolve(event1.getEventName());
-        assertEquals(event1.getEventName() , future.get() );
+        String str1=event1.getEventName();
+        String str2="";
+        try{
+            str2=future.get();
+        }
+        catch(InterruptedException e){}
+        assertEquals(str1,str2);
     }
 
     @Test
@@ -88,7 +101,14 @@ public class MessageBusTest {
         messageBus.complete(event1 , true);
         messageBus.complete(event2 , true);
         assertTrue(future1.isDone() && future2.isDone());
-        assertNotEquals(future1.get(),future2.get());
+        boolean boo1=false;
+        boolean boo2=false;
+        try {
+            boo1=future1.get();
+            boo2=future2.get();
+        }
+        catch (InterruptedException e){ }
+        assertNotEquals(boo1,boo2);
     }
 
     @Test

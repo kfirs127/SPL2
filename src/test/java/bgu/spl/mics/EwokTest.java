@@ -20,7 +20,7 @@ public class EwokTest {
 
     @BeforeEach
     public void setUp() {
-        ewok = new Ewok();
+        ewok = new Ewok(1);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class EwokTest {
 
     @Test
     public void testMultiEwokBool(){
-        Ewok secondEwok = new Ewok();
+        Ewok secondEwok = new Ewok(2);
         ewok.acquire();
         secondEwok.release();
         assertTrue(!ewok.getAvailable() && secondEwok.getAvailable());
@@ -69,7 +69,7 @@ public class EwokTest {
 
     @Test
     public void testMultiEwokInt(){
-        Ewok secondEwok = new Ewok();
+        Ewok secondEwok = new Ewok(2);
         ewok.setSerialNumber(3);
         secondEwok.setSerialNumber(4);
         assertTrue(ewok.getSerialNumber() == 3 && secondEwok.getSerialNumber() == 4);
