@@ -29,8 +29,12 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public synchronized T get() throws InterruptedException {
-		if(!isDone) wait();
+	public synchronized T get(){
+		while(!isDone){
+			try {
+				wait();
+			}catch (Exception e){}
+		}
 		return result;
 	}
 	
@@ -61,10 +65,15 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
-	public T get(long timeout, TimeUnit unit) throws InterruptedException {
+	public T get(long timeout, TimeUnit unit){
         if(isDone) return result;
-        unit.timedWait(isDone() , timeout);
-       // unit.sleep(timeout);
+        // check if syncronized or not
+        try {
+        	while(!isDone){
+        		wait(unit.toMicros(timeout));
+			}
+		}
+        catch (InterruptedException e){}
         return result;
 	}
 

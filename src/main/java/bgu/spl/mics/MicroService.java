@@ -1,5 +1,13 @@
 package bgu.spl.mics;
 
+import com.sun.org.glassfish.external.amx.MBeanListener;
+
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -20,10 +28,11 @@ import java.util.Queue;
  * Only private fields and methods may be added to this class.
  * <p>
  */
-public abstract class MicroService implements Runnable { 
-
+public abstract class MicroService implements Runnable {
     private String name;
     private MessageBusImpl messageBus;
+    private HashMap< Class<? extends Message>, Callback> callbacks;
+    private boolean toStop;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -32,6 +41,8 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
     	this.name = name;
         messageBus.getInstance();
+        callbacks = new HashMap<>();
+        toStop = false;
     }
 
     /**
@@ -56,7 +67,8 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-    	
+    	messageBus.subscribeEvent(type , this);
+    	callbacks.put(type , callback);
     }
 
     /**
@@ -80,7 +92,8 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-    	
+        messageBus.subscribeBroadcast(type , this);
+        callbacks.put(type , callback);
     }
 
     /**
@@ -133,7 +146,7 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
-    	
+    	toStop = true;
     }
 
     /**
@@ -141,7 +154,7 @@ public abstract class MicroService implements Runnable {
      *         construction time and is used mainly for debugging purposes.
      */
     public final String getName() {
-        return null;
+        return name;
     }
 
     /**
@@ -150,9 +163,17 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-
         messageBus.register(this);
-    }
+        initialize();
+        Message message = null;
+        while(!toStop){
+            try{
+                message = messageBus.awaitMessage(this);
+            }
+            catch(InterruptedException ignored){}
 
+            callbacks.get(message).call(message);
+        }
+    }
 
 }

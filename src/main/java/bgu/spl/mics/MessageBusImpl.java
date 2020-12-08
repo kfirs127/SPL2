@@ -36,7 +36,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)  {
+	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m){
 		subscribe(type,m);
 		subs.compareAndSet(subs.get(),subs.get()+1);
 		if(subs.get()==4)
@@ -45,13 +45,12 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-
 		subscribe (type,m);
     }
 
 	@Override @SuppressWarnings("unchecked")
 	public <T> void complete(Event<T> e, T result) {
-
+		// think there is no need of iterator here.
 		Iterator<Future> iter=futureObjects.get(e).iterator();
 		while(iter.hasNext()){
 			iter.next().resolve(result);
@@ -83,7 +82,6 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-
 		queues.put(m, new LinkedList<Message>());
 	}
 

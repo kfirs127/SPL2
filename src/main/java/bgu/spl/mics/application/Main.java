@@ -29,7 +29,7 @@ public class Main {
 
 		//Creating a JSONParser object
 		JSONParser jsonParser = new JSONParser();
-		String inputDirection = "C:\\Users\\barda\\Desktop\\input.json";
+		String inputDirection = args[1];
 		String contents = new String((Files.readAllBytes(Paths.get(inputDirection))));
 		Attack[] attacks;
 		int place=0;

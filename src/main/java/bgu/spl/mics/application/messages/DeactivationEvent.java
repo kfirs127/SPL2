@@ -1,9 +1,9 @@
 package bgu.spl.mics.application.messages;
 import bgu.spl.mics.Event;
+import sun.plugin2.message.Message;
 
-public class DeactivationEvent implements Event<Boolean> {
+import java.awt.*;
 
-        public DeactivationEvent(){};
-
-
+public class DeactivationEvent  implements Event<Boolean>{
+    public DeactivationEvent(){};
 }
