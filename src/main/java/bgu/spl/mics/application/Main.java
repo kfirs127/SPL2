@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import bgu.spl.mics.application.passiveObjects.Attack;
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 import bgu.spl.mics.application.services.LandoMicroservice;
 import bgu.spl.mics.application.services.LeiaMicroservice;
@@ -29,9 +30,10 @@ public class Main {
 
 		//Creating a JSONParser object
 		JSONParser jsonParser = new JSONParser();
-		String inputDirection = "C:\\Users\\barda\\Desktop\\input.json";
+		String inputDirection = args[1];
 		String contents = new String((Files.readAllBytes(Paths.get(inputDirection))));
 		Attack[] attacks;
+		Diary diary=Diary.getInstance();
 		int place=0;
 		try {
 			JSONObject jsonObject = (JSONObject) jsonParser.parse(contents);

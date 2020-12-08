@@ -8,7 +8,6 @@ import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.ExploseEvent;
-import bgu.spl.mics.application.messages.TerminateMessage;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.passiveObjects.Diary;
@@ -32,7 +31,7 @@ public class LeiaMicroservice extends MicroService {
 		this.attacks = attacks;
 		solved=new AtomicInteger();
 		futures= new HashMap<>();
-		diary=new Diary();
+		diary=Diary.getInstance();
     }
 
 
@@ -40,33 +39,24 @@ public class LeiaMicroservice extends MicroService {
     @Override
     protected void initialize() {
 
-        subscribeBroadcast(TerminateMessage.class,(exp)->{diary.setLeiaTerminate(this);});
-        for(int i=0;i<attacks.length;i++){
-            AttackEvent add=new AttackEvent(attacks[i]);
-            Future fut=sendEvent(add);
-            futures.put(add,fut);
-        }
-        Iterator<Map.Entry<Message,Future>> iterator=futures.entrySet().iterator();
-        while(iterator.hasNext()) { //chack if all attack are finished
-            try {
-                iterator.next().getValue().get();
-            }
-            catch (InterruptedException e){}
-        }
-        //now send to r2d2 message
-        Future fut=sendEvent(new DeactivationEvent());
-        try{
-            fut.get(); //wait until event solved.
-        }
-        catch (InterruptedException e){}
-        //after R2D2 finished, send message to lando.
-        Future explosion=sendEvent(new ExploseEvent());
-        try{
-            explosion.get();
-        }
-        catch (InterruptedException e){}
 
-        //after she finished she do nothing untill shutdown.
+        for (int i = 0; i < attacks.length; i++) {
+            AttackEvent add = new AttackEvent(attacks[i]);
+            Future fut = sendEvent(add);
+            futures.put(add, fut);
+        }
+        Iterator<Map.Entry<Message, Future>> iterator = futures.entrySet().iterator();
+        while (iterator.hasNext()) { //chack if all attack are finished
+            iterator.next().getValue().get();
+            //now send to r2d2 message
+            Future fut = sendEvent(new DeactivationEvent());
+            fut.get(); //wait until event solved.
+
+            //after R2D2 finished, send message to lando.
+            Future explosion = sendEvent(new ExploseEvent());
+            explosion.get();
+            //after she finished she do nothing untill shutdown.
+        }
     }
 
 
