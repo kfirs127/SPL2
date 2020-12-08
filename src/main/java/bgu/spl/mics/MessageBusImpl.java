@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -18,6 +19,7 @@ public class MessageBusImpl implements MessageBus {
 	private HashMap< MicroService, Queue<Message>> queues;
 	private HashMap<Class<? extends Message>, BlockingQueue< MicroService>> subscribe;
 	private HashMap<Message, BlockingQueue<Future>> futureObjects;
+	private AtomicInteger subs;
 
 	public static MessageBusImpl getInstance(){
 		if(INSTANCE==null)
@@ -29,12 +31,16 @@ public class MessageBusImpl implements MessageBus {
 		queues= new HashMap<>();
 		subscribe=new HashMap<>();
 		futureObjects=new HashMap<>();
+		subs=new AtomicInteger();
+		subs.set(0);
 	}
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)  {
-
 		subscribe(type,m);
+		subs.compareAndSet(subs.get(),subs.get()+1);
+		if(subs.get()==4)
+			start(true);
 	}
 
 	@Override
@@ -50,7 +56,6 @@ public class MessageBusImpl implements MessageBus {
 		while(iter.hasNext()){
 			iter.next().resolve(result);
 		}
-		notifyAll();
 	}
 
 	@Override
@@ -66,7 +71,8 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-
+		if(subs.get()<4)
+			start(false); //make leia start only after everyone are subscribe to queues
 		MicroService m=subscribe.get(e.getClass()).remove();
 		queues.get(m).add(e);
 		Future ret=new Future();
@@ -104,5 +110,16 @@ public class MessageBusImpl implements MessageBus {
 			subscribe.put(classN, new LinkedBlockingQueue<MicroService>() {
 			});
 		}
+	}
+	private synchronized void start(boolean val){
+
+		if(!val) {
+			try {
+				wait();
+			}
+			catch (InterruptedException e){}
+		}
+		else
+			notifyAll(); //will notify leia's thread it can start send messages after everyone are subscribed.
 	}
 }
