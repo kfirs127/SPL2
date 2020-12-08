@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.passiveObjects.Diary;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,11 +17,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MessageBusImpl implements MessageBus {
 
-	private static MessageBusImpl INSTANCE;
+	private static MessageBusImpl INSTANCE=null;
 	private HashMap< MicroService,  BlockingQueue<Message>> queues;
 	private HashMap<Class<? extends Message>, BlockingQueue< MicroService>> subscribe;
 	private HashMap<Message, BlockingQueue<Future>> futureObjects;
 	private AtomicInteger subs;
+	private Diary diary;
 
 	public static MessageBusImpl getInstance(){
 		if(INSTANCE==null)
@@ -27,12 +30,12 @@ public class MessageBusImpl implements MessageBus {
 		return INSTANCE;
 	}
 	private MessageBusImpl(){
-		INSTANCE=null;
 		queues= new HashMap<>();
 		subscribe=new HashMap<>();
 		futureObjects=new HashMap<>();
 		subs=new AtomicInteger();
 		subs.set(0);
+		diary =Diary.getInstance();
 	}
 
 	@Override
@@ -51,7 +54,6 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override @SuppressWarnings("unchecked")
 	public <T> void complete(Event<T> e, T result) {
-
 		Iterator<Future> iter=futureObjects.get(e).iterator();
 		while(iter.hasNext()){
 			iter.next().resolve(result);
@@ -93,9 +95,13 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) {
-
-			return queues.get(m.getClass()).remove(); //returns the first message available
+	public Message awaitMessage(MicroService m){
+		try {
+			return queues.get(m.getClass()).take(); //returns the first message available
+		}
+		catch (InterruptedException ignored){
+			return null;
+		}
 	}
 
 	private void subscribe(Class<? extends Message> type, MicroService m){

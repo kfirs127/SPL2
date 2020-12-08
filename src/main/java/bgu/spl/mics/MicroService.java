@@ -1,14 +1,8 @@
 package bgu.spl.mics;
 
-import com.sun.org.glassfish.external.amx.MBeanListener;
-
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import java.io.IOException;
-import java.security.KeyStore;
+import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.messages.TerminateMessage;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -164,19 +158,21 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         messageBus.register(this);
+        subscribeBroadcast(TerminateMessage.class, c -> { toStop=true;}) ;
         initialize();
-        Message message = null;
+        Message message;
         while(!toStop){
-            try{
-                message = messageBus.awaitMessage(this);
+            message = messageBus.awaitMessage(this);
+            if(message != null) {
+                try {
+                    callbacks.get(message).call(message);
+                }
+                catch (Exception e) {}
             }
-            catch(InterruptedException ignored){}
-
-            callbacks.get(message).call(message);
         }
+
     }
-    private Message getMessage(){
-        return messageBus.awaitMessage(this);
-    }
+
+    private Message getMessage(){ return messageBus.awaitMessage(this); }
 
 }

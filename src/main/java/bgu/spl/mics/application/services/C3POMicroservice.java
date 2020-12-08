@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
 
@@ -15,9 +16,12 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class C3POMicroservice extends MicroService {
+
+    private Diary diary;
 	
     public C3POMicroservice() {
         super("C3PO");
+        diary=Diary.getInstance();
     }
 
     @Override
@@ -35,6 +39,7 @@ public class C3POMicroservice extends MicroService {
                 catch (InterruptedException ignored){}
                 Ewoks.getInstance().releaseSupply(c.getSerials());
                 C3POMicroservice.super.complete(c, true);
+                diary.addAttack();
             }
         };
         // end message
