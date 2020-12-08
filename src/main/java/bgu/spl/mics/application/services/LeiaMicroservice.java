@@ -8,8 +8,10 @@ import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.ExploseEvent;
+import bgu.spl.mics.application.messages.TerminateMessage;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.passiveObjects.Diary;
 
 /**
  * LeiaMicroservices Initialized with Attack objects, and sends them as  {@link AttackEvent }.
@@ -23,12 +25,14 @@ public class LeiaMicroservice extends MicroService {
 	private Attack[] attacks;
 	private AtomicInteger solved;
     private HashMap<Message, Future> futures;
+    private Diary diary;
 	
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
 		this.attacks = attacks;
 		solved=new AtomicInteger();
 		futures= new HashMap<>();
+		diary=new Diary();
     }
 
 
@@ -36,7 +40,7 @@ public class LeiaMicroservice extends MicroService {
     @Override
     protected void initialize() {
 
-        
+        subscribeBroadcast(TerminateMessage.class,(exp)->{diary.setLeiaTerminate(this);});
         for(int i=0;i<attacks.length;i++){
             AttackEvent add=new AttackEvent(attacks[i]);
             Future fut=sendEvent(add);

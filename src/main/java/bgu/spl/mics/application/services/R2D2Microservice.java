@@ -3,6 +3,7 @@ import bgu.spl.mics.Callback;
 import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DeactivationEvent;
+import bgu.spl.mics.application.messages.TerminateMessage;
 
 /**
  * R2D2Microservices is in charge of the handling {@link DeactivationEvent}.

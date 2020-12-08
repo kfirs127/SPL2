@@ -1,5 +1,8 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.messages.TerminateMessage;
+import bgu.spl.mics.application.passiveObjects.Diary;
+
 import java.util.Queue;
 
 /**
@@ -24,6 +27,7 @@ public abstract class MicroService implements Runnable {
 
     private String name;
     private MessageBusImpl messageBus;
+    private Diary diary;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -32,6 +36,7 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
     	this.name = name;
         messageBus.getInstance();
+        diary=new Diary();
     }
 
     /**
