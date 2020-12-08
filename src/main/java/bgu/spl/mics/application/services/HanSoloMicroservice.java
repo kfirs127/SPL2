@@ -2,15 +2,10 @@ package bgu.spl.mics.application.services;
 
 
 import bgu.spl.mics.Callback;
-import bgu.spl.mics.Message;
-import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
-import bgu.spl.mics.application.messages.ExploseEvent;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
-import com.sun.org.glassfish.external.amx.MBeanListener;
-import sun.awt.image.ImageAccessException;
 
 /**
  * HanSoloMicroservices is in charge of the handling {@link AttackEvent}.

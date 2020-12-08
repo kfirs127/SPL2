@@ -21,7 +21,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		//Creating a JSONParser object
 		JSONParser jsonParser = new JSONParser();
-		String inputDirection = args[1];
+		String inputDirection = args[0];
 		String contents = new String((Files.readAllBytes(Paths.get(inputDirection))));
 		Attack[] attacks;
 		Diary diary=Diary.getInstance();
@@ -77,7 +77,6 @@ public class Main {
 				t5.join();
 			}
 			catch (InterruptedException e){}
-
 
 			//  String outputName=args[2];
 	}
