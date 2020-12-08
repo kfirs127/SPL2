@@ -1,7 +1,8 @@
 package bgu.spl.mics.application.services;
-
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DeactivationEvent;
 
 /**
  * R2D2Microservices is in charge of the handling {@link DeactivationEvent}.
@@ -22,6 +23,16 @@ public class R2D2Microservice extends MicroService {
     @Override
     protected void initialize() {
 
+        //defines callback function for deactivate
+        Callback <DeactivationEvent> deactivae= c -> {
+            try{
+                Thread.sleep(duration);
+            }
+            catch (InterruptedException e){}
+            complete(c,true);
+    };
+        super.subscribeEvent(DeactivationEvent.class,deactivae);
     }
+
 
 }

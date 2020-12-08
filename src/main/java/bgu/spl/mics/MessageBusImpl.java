@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl INSTANCE;
-	private HashMap< MicroService, Queue<Message>> queues;
+	private HashMap< MicroService,  BlockingQueue<Message>> queues;
 	private HashMap<Class<? extends Message>, BlockingQueue< MicroService>> subscribe;
 	private HashMap<Message, BlockingQueue<Future>> futureObjects;
 	private AtomicInteger subs;
@@ -84,7 +84,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void register(MicroService m) {
 
-		queues.put(m, new LinkedList<Message>());
+		queues.put(m, new LinkedBlockingQueue<>());
 	}
 
 	@Override
@@ -93,11 +93,8 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
-		while(queues.get(m.getClass()).size()==0)
-		{
-			m.wait(); //waiting for message
-		}
+	public Message awaitMessage(MicroService m) {
+
 			return queues.get(m.getClass()).remove(); //returns the first message available
 	}
 
