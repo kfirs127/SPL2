@@ -175,5 +175,8 @@ public abstract class MicroService implements Runnable {
             callbacks.get(message).call(message);
         }
     }
+    private Message getMessage(){
+        return messageBus.awaitMessage(this);
+    }
 
 }
