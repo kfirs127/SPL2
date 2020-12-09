@@ -66,7 +66,10 @@ public class Main {
 				t5.join();
 			}
 			catch (InterruptedException e){}
-			FileWriter file = new FileWriter(args[1]);
-			file.write(gson.toJson(Input.class));  // need to change here //
+			Gson g = new Gson();
+			Writer w = new FileWriter(args[1]);
+			w.write(g.toJson(Diary.getInstance()));
+			w.flush();
+			w.close();
 	}
 }
