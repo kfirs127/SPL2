@@ -1,7 +1,5 @@
 package bgu.spl.mics.application;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -12,10 +10,14 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
 import bgu.spl.mics.application.passiveObjects.Input;
 import bgu.spl.mics.application.services.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.stream.JsonWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.json.*;
+import java.io.IOException;
 
 import javax.xml.transform.Result;
 
@@ -26,8 +28,8 @@ import javax.xml.transform.Result;
 public class Main {
 	public static void main(String[] args) throws IOException {
 		Gson gson=new Gson();
-		BufferedReader reader=new BufferedReader(new FileReader(args[0]));
-		Input attackobj= gson.fromJson(reader, Input.class);
+		BufferedReader reader = new BufferedReader(new FileReader(args[0]));
+		Input attackobj = gson.fromJson(reader, Input.class);
 		long ewoks=attackobj.getEwoks();
 		long landoD=attackobj.getLando();
 		long r2d2D=attackobj.getR2D2();
@@ -64,7 +66,7 @@ public class Main {
 				t5.join();
 			}
 			catch (InterruptedException e){}
-
-			//  String outputName=args[2];
+			FileWriter file = new FileWriter(args[1]);
+			file.write(gson.toJson(Input.class));  // need to change here //
 	}
 }
