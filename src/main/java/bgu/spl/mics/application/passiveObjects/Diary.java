@@ -41,24 +41,22 @@ public class Diary {
             INSTANCE=new Diary();
         return INSTANCE;
     }
-    public void setTotalAttack(int total){ totalAttack.compareAndSet(totalAttack.get(), total);  }
+    public void setTotalAttack(int total){
 
-    public void setHanSoloFinish(MicroService obj) throws Exception {
+
+        while(!totalAttack.compareAndSet(totalAttack.get(), total));  }
+
+    public void setFinish(MicroService obj){
         if(obj instanceof HanSoloMicroservice)
-            throw new Exception("wrong microservice tried to set hansolo finish");
-        HanSoloFinish=System.currentTimeMillis();
+            HanSoloFinish=System.currentTimeMillis();
+        else if(obj instanceof C3POMicroservice)
+           C3POFinish=System.currentTimeMillis();
     }
-    public void setC3POFinish(MicroService obj)throws Exception {
-        if(obj instanceof C3POMicroservice)
-            throw new Exception("wrong microservice tried to set hansolo finish");
-        C3POFinish=System.currentTimeMillis();
+    public void setR2D2Deactivate(MicroService obj) {
+        if(obj instanceof R2D2Microservice)
+            R2D2Deactivate=System.currentTimeMillis();
     }
-    public void setR2D2Deactivate(MicroService obj)throws Exception {
-        if(obj instanceof C3POMicroservice)
-            throw new Exception("wrong microservice tried to set hansolo finish");
-        R2D2Deactivate=System.currentTimeMillis();
-    }
-    public void Terminate(MicroService obj)throws Exception {
+    public void Terminate(MicroService obj){
         long terminate = System.currentTimeMillis();
         C3POTerminate = terminate;
         HanSoloTerminate = terminate;
@@ -66,7 +64,7 @@ public class Diary {
         R2D2Terminate = terminate;
         LandoTerminate = terminate;
     }
-    public void addAttack(){totalAttack.compareAndSet(totalAttack.get(),totalAttack.get()+1);}
+    public void addAttack(){while(!totalAttack.compareAndSet(totalAttack.get(),totalAttack.get()+1));}
     public int getTotalAttack(){ return totalAttack.get(); }
     public long getHanSoloFinish(HanSoloMicroservice obj){return HanSoloFinish;}
     public long getC3POFinish(C3POMicroservice obj){return C3POFinish;}

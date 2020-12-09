@@ -43,5 +43,6 @@ public class C3POMicroservice extends MicroService {
             }
         };
         // end message
+        super.subscribeEvent(AttackEvent.class,callback);
     }
 }

@@ -2,10 +2,7 @@ package bgu.spl.mics;
 
 import bgu.spl.mics.application.passiveObjects.Diary;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +21,7 @@ public class MessageBusImpl implements MessageBus {
 	private AtomicInteger subs;
 	private Diary diary;
 
-	public static MessageBusImpl getInstance(){
+	public synchronized static MessageBusImpl getInstance(){
 		if(INSTANCE==null)
 			INSTANCE=new MessageBusImpl();
 		return INSTANCE;
@@ -39,7 +36,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)  {
+	public synchronized <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)  {
 		subscribe(type,m);
 		subs.compareAndSet(subs.get(),subs.get()+1);
 		if(subs.get()==4)
@@ -47,13 +44,13 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
+	public synchronized void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 
 		subscribe (type,m);
     }
 
 	@Override @SuppressWarnings("unchecked")
-	public <T> void complete(Event<T> e, T result) {
+	public synchronized  <T> void complete(Event<T> e, T result) {
 		Iterator<Future> iter=futureObjects.get(e).iterator();
 		while(iter.hasNext()){
 			iter.next().resolve(result);
@@ -61,7 +58,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
+	public synchronized void sendBroadcast(Broadcast b) {
 
 		if(!futureObjects.containsKey(b))
 			futureObjects.put(b, new LinkedBlockingQueue<Future>());
@@ -72,10 +69,12 @@ public class MessageBusImpl implements MessageBus {
 		}
 
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
-		if(subs.get()<4)
-			start(false); //make leia start only after everyone are subscribe to queues
-		MicroService m=subscribe.get(e.getClass()).remove();
+	public synchronized <T> Future<T> sendEvent(Event<T> e) {
+	//	if(subs.get()<4)
+	//		start(false); //make leia start only after everyone are subscribe to queues
+		MicroService m=subscribe.get(e.getClass()).poll();
+		try {subscribe.get(e.getClass()).put(m);}
+		catch (InterruptedException interruptedException) {}
 		queues.get(m).add(e);
 		Future ret=new Future();
 		futureObjects.put(e, new LinkedBlockingQueue<Future>());
@@ -84,9 +83,8 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void register(MicroService m) {
-
-		queues.put(m, new LinkedBlockingQueue<>());
+	public synchronized void register(MicroService m) {
+		queues.put(m, new LinkedBlockingQueue<>(3));
 	}
 
 	@Override
@@ -96,21 +94,25 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public Message awaitMessage(MicroService m){
+
+		Iterator<Map.Entry<MicroService, BlockingQueue<Message>>> iter=queues.entrySet().iterator();
 		try {
-			return queues.get(m.getClass()).take(); //returns the first message available
+			return queues.get(m).take(); //returns the first message available
 		}
-		catch (InterruptedException ignored){
+		catch (InterruptedException e) {
 			return null;
 		}
 	}
 
-	private void subscribe(Class<? extends Message> type, MicroService m){
-		if (subscribe.containsKey(type.getClass())) {
-			subscribe.get(type.getClass()).add(m);
+	private synchronized <T> void subscribe(Class<? extends Message> type, MicroService m){
+		System.out.println("try to subscribe " + m.getClass()+ " to class "+ type);
+		if (subscribe.containsKey(type)) {
+			try {
+				subscribe.get(type).put(m);
+			} catch (InterruptedException e) {}
 		}
 		else {
-			Class classN=type.getClass();
-			subscribe.put(classN, new LinkedBlockingQueue<MicroService>() {
+			subscribe.put(type, new LinkedBlockingQueue<MicroService>() {
 			});
 		}
 	}

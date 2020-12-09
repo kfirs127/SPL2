@@ -2,6 +2,8 @@ package bgu.spl.mics;
 
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.TerminateMessage;
+import bgu.spl.mics.application.passiveObjects.Diary;
+
 import java.util.HashMap;
 
 /**
@@ -27,6 +29,7 @@ public abstract class MicroService implements Runnable {
     private MessageBusImpl messageBus;
     private HashMap< Class<? extends Message>, Callback> callbacks;
     private boolean toStop;
+    private Diary diary;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -34,9 +37,10 @@ public abstract class MicroService implements Runnable {
      */
     public MicroService(String name) {
     	this.name = name;
-        messageBus.getInstance();
+        messageBus = MessageBusImpl.getInstance();
         callbacks = new HashMap<>();
         toStop = false;
+        diary=Diary.getInstance();
     }
 
     /**
@@ -170,7 +174,7 @@ public abstract class MicroService implements Runnable {
                 catch (Exception e) {}
             }
         }
-
+        diary.setFinish(this);
     }
 
     private Message getMessage(){ return messageBus.awaitMessage(this); }

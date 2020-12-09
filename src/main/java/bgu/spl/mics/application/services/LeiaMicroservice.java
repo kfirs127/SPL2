@@ -38,7 +38,11 @@ public class LeiaMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         for (int i = 0; i < attacks.length; i++) {
             AttackEvent add = new AttackEvent(attacks[i]);
