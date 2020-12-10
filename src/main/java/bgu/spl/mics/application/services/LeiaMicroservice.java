@@ -44,11 +44,11 @@ public class LeiaMicroservice extends MicroService {
             Future fut = sendEvent(add);
             futures.put(add, fut);
         }
+        sendBroadcast(new FinishEvent());
         Iterator<Map.Entry<Message, Future>> iterator = futures.entrySet().iterator();
         while (iterator.hasNext()) { //chack if all attack are finished
             iterator.next().getValue().get();
         }
-        sendBroadcast(new FinishEvent());
          // Syst  em.out.println(" Hansolo and c3po finished attacks, leia calls r2d2 to determinate");
             Future fut = sendEvent(new DeactivationEvent());
             fut.get(); //wait until event solved.

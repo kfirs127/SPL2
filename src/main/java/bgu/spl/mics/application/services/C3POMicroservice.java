@@ -34,16 +34,20 @@ public class C3POMicroservice extends MicroService {
                 try {
                  //   System.out.println(this.getClass().getName()+" try get supply");
                     while(!Ewoks.getInstance().getSupply(c.getSerials()));
+                    Thread.sleep(c.getDuration());
                     Ewoks.getInstance().releaseSupply(c.getSerials());
                   //  System.out.println("sent event "+c.getClass().getName() +" to complete");
                     C3POMicroservice.super.complete(c, true);
                     diary.addAttack();
                 }
                 catch (NullPointerException ignored){ System.out.println("exception in c3po call");}
+                catch (InterruptedException inter){
+                    System.out.println("interrupt exception call c3po sleep ");
+                }
 
             }
         };
-        subscribeBroadcast(FinishEvent.class, c -> { diary.setFinish(this); }) ;
+        subscribeBroadcast(FinishEvent.class, c -> { diary.setFinish(this,startTime); }) ;
         // end message
         super.subscribeEvent(AttackEvent.class,callback);
     }

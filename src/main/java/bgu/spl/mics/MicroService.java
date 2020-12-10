@@ -30,6 +30,7 @@ public abstract class MicroService implements Runnable {
     private HashMap< Class<? extends Message> ,Callback> callbacks;
     private boolean toStop;
     private Diary diary;
+    public long startTime;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -41,6 +42,7 @@ public abstract class MicroService implements Runnable {
         callbacks = new HashMap<>();
         toStop = false;
         diary=Diary.getInstance();
+        startTime=System.currentTimeMillis();
     }
 
     /**
@@ -136,8 +138,13 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-      //  System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
-        messageBus.complete(e , result);
+        //  System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
+        try {
+            messageBus.complete(e, result);
+        }
+        catch(Exception s){
+            System.out.println("microservice complete exception");
+        }
     }
 
     /**
@@ -171,7 +178,7 @@ public abstract class MicroService implements Runnable {
         messageBus.register(this);
         subscribeBroadcast(TerminateMessage.class, c -> {
             toStop=true;
-            diary.Terminate(this);
+            diary.Terminate(this,startTime);
         }) ;
         initialize();
         Message message;

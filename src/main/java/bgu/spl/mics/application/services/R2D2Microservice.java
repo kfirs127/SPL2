@@ -34,7 +34,7 @@ public class R2D2Microservice extends MicroService {
             }
             catch (InterruptedException e){ System.out.println("exception in r2d2 call");}
             complete(c,true);
-            diary.setR2D2Deactivate(this);
+            diary.setR2D2Deactivate(this,startTime);
     };
         super.subscribeEvent(DeactivationEvent.class,deactivae);
     }

@@ -46,41 +46,41 @@ public class Diary {
         return INSTANCE;
     }
 
-    public void setFinish(MicroService obj){
+    public void setFinish(MicroService obj,long start){
        // if(finishTime==0)
         //  finishTime=System.currentTimeMillis();
         if(obj instanceof HanSoloMicroservice) {
-            HanSoloFinish = System.currentTimeMillis();
+            HanSoloFinish = System.currentTimeMillis()-start;
          //   System.out.println(" wrote hansolo finish in diary "+ HanSoloFinish );
         }
         else if(obj instanceof C3POMicroservice) {
-            C3POFinish = System.currentTimeMillis();
+            C3POFinish = System.currentTimeMillis()-start;
          //   System.out.println(" wrote hansolo finish in diary "+ C3POFinish );
         }
     }
-    public void setR2D2Deactivate(MicroService obj) {
+    public void setR2D2Deactivate(MicroService obj,long start) {
         if(obj instanceof R2D2Microservice) {
-            R2D2Deactivate = System.currentTimeMillis();
+            R2D2Deactivate = System.currentTimeMillis()-start;
           //  System.out.println(" wrote deactivation in diary "+ System.currentTimeMillis() );
         }
     }
-    public void Terminate(MicroService obj) {
+    public void Terminate(MicroService obj,long start) {
      //   if(terminateTime==0);
       //  terminateTime = System.currentTimeMillis();
         if (C3POMicroservice.class.equals(obj.getClass())) {
-            C3POTerminate = System.currentTimeMillis();
+            C3POTerminate = System.currentTimeMillis()-start;
         }
         else if (HanSoloMicroservice.class.equals(obj.getClass())) {
-            HanSoloTerminate = System.currentTimeMillis();
+            HanSoloTerminate = System.currentTimeMillis()-start;
         }
         else if (R2D2Microservice.class.equals(obj.getClass())) {
-            R2D2Terminate = System.currentTimeMillis();
+            R2D2Terminate = System.currentTimeMillis()-start;
         }
         else if (LeiaMicroservice.class.equals(obj.getClass())) {
-            LeiaTerminate = System.currentTimeMillis();
+            LeiaTerminate = System.currentTimeMillis()-start;
         }
         else if (LandoMicroservice.class.equals(obj.getClass())) {
-            LandoTerminate =System.currentTimeMillis();
+            LandoTerminate =System.currentTimeMillis()-start;
         }
     }
     public void addAttack(){

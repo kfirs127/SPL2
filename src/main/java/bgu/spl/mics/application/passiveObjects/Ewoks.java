@@ -28,7 +28,7 @@ public class Ewoks {
         Ewoks.add(new Ewok(num));
     }
     public synchronized boolean getSupply(Integer [] ewok){
-
+        try{
         int size=ewok.length;
         if(size>Ewoks.size())
             throw new ArrayIndexOutOfBoundsException("too many ewoks");
@@ -40,18 +40,28 @@ public class Ewoks {
         for(int i=0; i<ewok.length;i++) {
             Ewoks.get(ewok[i]-1).acquire();
         }
-        return true;
+        return true;}
+        catch(Exception c){
+            System.out.println(" get supply exception");
+            return false;
+        }
     }
-    public synchronized boolean releaseSupply(Integer [] ewok){
+    public synchronized boolean releaseSupply(Integer [] ewok) {
 
-        for(int i=0; i<ewok.length;i++) {
-            if (Ewoks.get(ewok[i]-1).getAvailable())
-                return false;
+        try {
+            for (int i = 0; i < ewok.length; i++) {
+                if (Ewoks.get(ewok[i] - 1).getAvailable())
+                    return false;
+            }
+            for (int i = 0; i < ewok.length; i++) {
+                int number = ewok[i];
+                Ewoks.get(ewok[i] - 1).release();
+            }
+            return true;
         }
-        for(int i=0; i<ewok.length;i++) {
-            int number = ewok[i];
-            Ewoks.get(ewok[i]-1).release();
+        catch (Exception e) {
+            System.out.println("release supply exception");
+            return false;
         }
-        return true;
     }
 }

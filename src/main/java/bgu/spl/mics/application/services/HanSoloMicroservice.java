@@ -32,17 +32,16 @@ public class HanSoloMicroservice extends MicroService {
             public void call(AttackEvent c) {
                 try {
                     while(!Ewoks.getInstance().getSupply(c.getSerials()));
-                    Ewoks.getInstance().getSupply(c.getSerials());
                     Thread.sleep(c.getDuration());
                     Ewoks.getInstance().releaseSupply(c.getSerials());
                     HanSoloMicroservice.super.complete(c, true);
                     diary.addAttack();
                 }
-                catch (NullPointerException ignored){  System.out.println("exception in hansolo call"); }
-                catch (InterruptedException ignored){  System.out.println("exception in hansolo call");}
+                catch (NullPointerException ignored){  System.out.println("exception in hansolo call1"); }
+                catch (InterruptedException ignored){  System.out.println("exception in hansolo call2");}
             }
         };
-        subscribeBroadcast(FinishEvent.class, c -> { diary.setFinish(this); }) ;
+        subscribeBroadcast(FinishEvent.class, c -> { diary.setFinish(this,startTime); }) ;
         // end message
         super.subscribeEvent(AttackEvent.class,callback);
     }
