@@ -6,11 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.DeactivationEvent;
-import bgu.spl.mics.application.messages.ExploseEvent;
-import bgu.spl.mics.application.messages.StartMessage;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.Attack;
-import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.passiveObjects.Diary;
 
 /**
@@ -51,6 +48,7 @@ public class LeiaMicroservice extends MicroService {
         while (iterator.hasNext()) { //chack if all attack are finished
             iterator.next().getValue().get();
         }
+        sendBroadcast(new FinishEvent());
          // Syst  em.out.println(" Hansolo and c3po finished attacks, leia calls r2d2 to determinate");
             Future fut = sendEvent(new DeactivationEvent());
             fut.get(); //wait until event solved.

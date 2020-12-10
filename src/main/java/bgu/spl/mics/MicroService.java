@@ -30,7 +30,6 @@ public abstract class MicroService implements Runnable {
     private HashMap< Class<? extends Message> ,Callback> callbacks;
     private boolean toStop;
     private Diary diary;
-    private AtomicInteger done;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -42,7 +41,6 @@ public abstract class MicroService implements Runnable {
         callbacks = new HashMap<>();
         toStop = false;
         diary=Diary.getInstance();
-        done=new AtomicInteger(0);
     }
 
     /**
@@ -140,8 +138,6 @@ public abstract class MicroService implements Runnable {
     protected final <T> void complete(Event<T> e, T result) {
       //  System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
         messageBus.complete(e , result);
-        if(e.getClass().equals(AttackEvent.class))
-        done.compareAndSet(done.get(),done.get()+1);
     }
 
     /**
@@ -180,8 +176,7 @@ public abstract class MicroService implements Runnable {
         initialize();
         Message message;
         while(!toStop){
-            if(done.get()==2)
-                diary.setFinish(this);
+
           //  System.out.println(this.getName() +"start run looop");
             message = messageBus.awaitMessage(this);
             if(message != null) {
@@ -197,7 +192,6 @@ public abstract class MicroService implements Runnable {
                 }
             }
         }
-        diary.setFinish(this);
         messageBus.unregister(this);
     }
 

@@ -3,6 +3,8 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.messages.FinishEvent;
+import bgu.spl.mics.application.messages.TerminateMessage;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
@@ -41,6 +43,7 @@ public class C3POMicroservice extends MicroService {
 
             }
         };
+        subscribeBroadcast(FinishEvent.class, c -> { diary.setFinish(this); }) ;
         // end message
         super.subscribeEvent(AttackEvent.class,callback);
     }
