@@ -1,0 +1,110 @@
+Index: src/main/java/bgu/spl/mics/MessageBusImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package bgu.spl.mics;\r\nimport java.util.LinkedList;\r\nimport java.util.Queue;\r\nimport java.util.concurrent.ConcurrentHashMap;\r\n\r\n/**\r\n * The {@link MessageBusImpl class is the implementation of the MessageBus interface.\r\n * Write your implementation here!\r\n * Only private fields and methods can be added to this class.\r\n */\r\npublic class MessageBusImpl implements MessageBus {\r\n\r\n\tprivate static MessageBusImpl INSTANCE;\r\n\tprivate ConcurrentHashMap<Class, LinkedList<Message>> queues;\r\n\r\n\tpublic static MessageBusImpl getInstance(){\r\n\t\tif(INSTANCE==null)\r\n\t\t\tINSTANCE=new MessageBusImpl();\r\n\t\treturn INSTANCE;\r\n\t}\r\n\tprivate MessageBusImpl(){\r\n\t\tINSTANCE=null;\r\n\t\tqueues=new ConcurrentHashMap<>();\r\n\t}\r\n\r\n\t@Override\r\n\tpublic <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {\r\n\t}\r\n\r\n\t@Override\r\n\tpublic void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {\r\n    }\r\n\r\n\t@Override @SuppressWarnings(\"unchecked\")\r\n\tpublic <T> void complete(Event<T> e, T result) {\r\n\t}\r\n\r\n\t@Override\r\n\tpublic void sendBroadcast(Broadcast b) {\r\n\t}\r\n\r\n\t\r\n\t@Override\r\n\tpublic <T> Future<T> sendEvent(Event<T> e) {\r\n        return null;\r\n\t}\r\n\r\n\t@Override\r\n\tpublic void register(MicroService m) {\r\n\r\n\t\tqueues.put(m.getClass(), new LinkedList<Message>() {\r\n\t\t});\r\n\t}\r\n\r\n\t@Override\r\n\tpublic void unregister(MicroService m) {\r\n\t\tqueues.remove(m.getClass());\r\n\t}\r\n\r\n\t@Override\r\n\tpublic Message awaitMessage(MicroService m) throws InterruptedException {\r\n\t\twhile(queues.get(m.getClass()).size()==0)\r\n\t\t{\r\n\t\t\tm.wait(); //waiting for message\r\n\t\t}\r\n\t\t\treturn queues.get(m.getClass()).removeFirst(); //returns the first message available\r\n\t}\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/bgu/spl/mics/MessageBusImpl.java	(revision 9dd2dc7f09665d9aff84133d2c2541f71c7ab29a)
++++ src/main/java/bgu/spl/mics/MessageBusImpl.java	(date 1607272561724)
+@@ -1,4 +1,5 @@
+ package bgu.spl.mics;
++
+ import java.util.LinkedList;
+ import java.util.Queue;
+ import java.util.concurrent.ConcurrentHashMap;
+@@ -11,7 +12,8 @@
+ public class MessageBusImpl implements MessageBus {
+ 
+ 	private static MessageBusImpl INSTANCE;
+-	private ConcurrentHashMap<Class, LinkedList<Message>> queues;
++	private ConcurrentHashMap< MicroService, Queue<Message>> queues;
++	private ConcurrentHashMap<Class<? extends Message>, Queue< MicroService>> subscribe;
+ 
+ 	public static MessageBusImpl getInstance(){
+ 		if(INSTANCE==null)
+@@ -20,36 +22,48 @@
+ 	}
+ 	private MessageBusImpl(){
+ 		INSTANCE=null;
+-		queues=new ConcurrentHashMap<>();
++		queues= new ConcurrentHashMap<>();
++		subscribe=new ConcurrentHashMap<>();
+ 	}
+ 
+ 	@Override
+-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
++	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)  {
++
++		subscribe(type,m);
+ 	}
+ 
+ 	@Override
+ 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
++
++		subscribe (type,m);
+     }
+ 
+ 	@Override @SuppressWarnings("unchecked")
+ 	public <T> void complete(Event<T> e, T result) {
++
++		notifyAll();
+ 	}
+ 
+ 	@Override
+ 	public void sendBroadcast(Broadcast b) {
+-	}
++
++		for(MicroService micro: subscribe.get(b))
++			queues.get(micro).add(b);
++
++		}
+ 
+-	
+ 	@Override
+ 	public <T> Future<T> sendEvent(Event<T> e) {
+-        return null;
++
++		MicroService m=subscribe.get(e.getClass()).remove();
++		queues.get(m).add(e);
++		return new Future<T>();
+ 	}
+ 
+ 	@Override
+ 	public void register(MicroService m) {
+ 
+-		queues.put(m.getClass(), new LinkedList<Message>() {
+-		});
++		queues.put(m, new LinkedList<Message>());
+ 	}
+ 
+ 	@Override
+@@ -63,6 +77,27 @@
+ 		{
+ 			m.wait(); //waiting for message
+ 		}
+-			return queues.get(m.getClass()).removeFirst(); //returns the first message available
++			return queues.get(m.getClass()).remove(); //returns the first message available
+ 	}
++
++	private void subscribe(Class<? extends Message> type, MicroService m){
++		if (subscribe.contains(type.getClass())) {
++			subscribe.get(type.getClass()).add(m);
++		}
++		else {
++			Class classN=type.getClass();
++			subscribe.put(classN, new LinkedList<MicroService>() {
++			});
++		}
++	}
++/*	private void subscribeB(Class<? extends Broadcast> type, MicroService m){
++		if (broad.contains(type.getClass())) {
++			broad.get(type.getClass()).add(m);
++		}
++		else {
++			Class classN=type.getClass();
++			broad.put(classN, new LinkedList<MicroService>() {
++			});
++		}
++	} */
+ }

@@ -1,0 +1,44 @@
+Index: src/main/java/bgu/spl/mics/application/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package bgu.spl.mics.application;\r\nimport java.io.IOException;\r\nimport java.nio.file.Files;\r\nimport java.nio.file.Paths;\r\nimport java.util.Iterator;\r\nimport java.util.LinkedList;\r\n\r\nimport bgu.spl.mics.application.passiveObjects.Attack;\r\nimport bgu.spl.mics.application.passiveObjects.Ewoks;\r\nimport bgu.spl.mics.application.services.LandoMicroservice;\r\nimport bgu.spl.mics.application.services.LeiaMicroservice;\r\nimport bgu.spl.mics.application.services.R2D2Microservice;\r\nimport org.json.simple.JSONArray;\r\nimport org.json.simple.JSONObject;\r\nimport org.json.simple.parser.JSONParser;\r\nimport org.json.simple.parser.ParseException;\r\nimport java.io.IOException;\r\nimport java.nio.file.Files;\r\nimport java.nio.file.Paths;\r\nimport java.util.Iterator;\r\nimport java.util.LinkedList;\r\n\r\n/** This is the Main class of the application. You should parse the input file,\r\n * create the different components of the application, and run the system.\r\n * In the end, you should output a JSON.\r\n */\r\npublic class Main {\r\n\tpublic static void main(String[] args) throws IOException {\r\n\r\n\t\t//Creating a JSONParser object\r\n\t\tJSONParser jsonParser = new JSONParser();\r\n\t\tString inputDirection = \"C:\\\\Users\\\\barda\\\\Desktop\\\\input.json\";\r\n\t\tString contents = new String((Files.readAllBytes(Paths.get(inputDirection))));\r\n\t\tAttack[] attacks;\r\n\t\tint place=0;\r\n\t\ttry {\r\n\t\t\tJSONObject jsonObject = (JSONObject) jsonParser.parse(contents);\r\n\t\t\tLong r2d2D=(Long) jsonObject.get(\"R2D2\");\r\n\t\t\tLong landoD=(Long) jsonObject.get(\"Lando\");\r\n\t\t\tLong ewoksN=(Long) jsonObject.get(\"Ewoks\");\r\n\t\t\tJSONArray attacksArray = (JSONArray) jsonObject.get(\"attacks\");\r\n\t\t\tattacks = new Attack[attacksArray.size()];\r\n\t\t\tIterator<JSONObject> iterator = attacksArray.iterator(); //Iterating the contents of the array\r\n\t\t\twhile (iterator.hasNext()) {\r\n\t\t\t\tJSONObject objec = (JSONObject) iterator.next();\r\n\t\t\t\tJSONArray ewoks = (JSONArray) objec.get(\"serials\");\r\n\t\t\t\tLinkedList<Integer> serial = new LinkedList<>();\r\n\t\t\t\tfor (int i = 0; i < ewoks.size(); i++) {\r\n\t\t\t\t\tLong temp = (Long) ewoks.get(i);\r\n\t\t\t\t\tserial.add(temp.intValue());\r\n\t\t\t\t}\r\n\t\t\t\tattacks[place] = new Attack(serial, ((Long) objec.get(\"duration\")).intValue());\r\n\t\t\t\tplace++;\r\n\t\t\t}\r\n\t\t\tEwoks supply=Ewoks.getInstance();\r\n\t\t\tfor(int i=0;i<ewoksN;i++){\r\n\t\t\t\tsupply.addEwok();\r\n\t\t\t}\r\n\t\t\tLeiaMicroservice leia = new LeiaMicroservice(attacks);\r\n\t\t\tR2D2Microservice r2d2=new R2D2Microservice(r2d2D);\r\n\t\t\tLandoMicroservice lando=new LandoMicroservice(landoD);\r\n\t\t\t//initializing everyone else\r\n\t\t\t//  String outputName=args[2];\r\n\t\t}\r\n\t\tcatch (ParseException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/bgu/spl/mics/application/Main.java	(revision 729eb741062ecc50e5f62b6b2b135105d670959f)
++++ src/main/java/bgu/spl/mics/application/Main.java	(date 1607449957744)
+@@ -7,9 +7,7 @@
+ 
+ import bgu.spl.mics.application.passiveObjects.Attack;
+ import bgu.spl.mics.application.passiveObjects.Ewoks;
+-import bgu.spl.mics.application.services.LandoMicroservice;
+-import bgu.spl.mics.application.services.LeiaMicroservice;
+-import bgu.spl.mics.application.services.R2D2Microservice;
++import bgu.spl.mics.application.services.*;
+ import org.json.simple.JSONArray;
+ import org.json.simple.JSONObject;
+ import org.json.simple.parser.JSONParser;
+@@ -56,10 +54,22 @@
+ 			for(int i=0;i<ewoksN;i++){
+ 				supply.addEwok();
+ 			}
++			C3POMicroservice c3po=new C3POMicroservice();
++			HanSoloMicroservice hanSolo=new HanSoloMicroservice();
+ 			LeiaMicroservice leia = new LeiaMicroservice(attacks);
+ 			R2D2Microservice r2d2=new R2D2Microservice(r2d2D);
+ 			LandoMicroservice lando=new LandoMicroservice(landoD);
+-			//initializing everyone else
++			Thread t1=new Thread(hanSolo);
++			Thread t2=new Thread(c3po);
++			Thread t3=new Thread(leia);
++			Thread t4=new Thread(r2d2);
++			Thread t5=new Thread(lando);
++			t1.start();
++			t2.start();
++			t3.start();
++			t4.start();
++			t5.start();
++
+ 			//  String outputName=args[2];
+ 		}
+ 		catch (ParseException e) {
