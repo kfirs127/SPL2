@@ -1,4 +1,5 @@
 package bgu.spl.mics.application.passiveObjects;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -11,7 +12,7 @@ import java.util.LinkedList;
  */
 public class Ewoks {
     private static Ewoks INSTANCE;
-    private LinkedList<Ewok> Ewoks;
+    private ArrayList<Ewok> Ewoks;
 
     public static Ewoks getInstance(){
         if(INSTANCE==null)
@@ -20,35 +21,36 @@ public class Ewoks {
     }
 
     private Ewoks(){
-        Ewoks = new LinkedList<>();
+        Ewoks = new ArrayList<>();
     }
     public void addEwok(){
         int num=Ewoks.size()+1;
         Ewoks.add(new Ewok(num));
     }
-    public boolean getSupply(Integer [] ewok){
+    public synchronized boolean getSupply(Integer [] ewok){
 
-        for(int i=0; i<ewok.length;i++) {
-            int number = ewok[i];
-            if (!Ewoks.get(number).getAvailable())
+        int size=ewok.length;
+        if(size>Ewoks.size())
+            throw new ArrayIndexOutOfBoundsException("too many ewoks");
+        for(int i=0; i<size;i++) {
+            if (!Ewoks.get(ewok[i]-1).getAvailable()) {
                 return false;
+            }
         }
         for(int i=0; i<ewok.length;i++) {
-            int number = ewok[i];
-            Ewoks.get(number).acquire();
+            Ewoks.get(ewok[i]-1).acquire();
         }
         return true;
     }
-    public boolean releaseSupply(Integer [] ewok){
+    public synchronized boolean releaseSupply(Integer [] ewok){
 
         for(int i=0; i<ewok.length;i++) {
-            int number = ewok[i];
-            if (Ewoks.get(number).getAvailable())
+            if (Ewoks.get(ewok[i]-1).getAvailable())
                 return false;
         }
         for(int i=0; i<ewok.length;i++) {
             int number = ewok[i];
-            Ewoks.get(number).acquire();
+            Ewoks.get(ewok[i]-1).release();
         }
         return true;
     }

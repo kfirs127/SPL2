@@ -1,25 +1,12 @@
 package bgu.spl.mics.application;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.LinkedList;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 import bgu.spl.mics.application.passiveObjects.Input;
 import bgu.spl.mics.application.services.*;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.stream.JsonWriter;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.json.*;
 import java.io.IOException;
-
-import javax.xml.transform.Result;
 
 /** This is the Main class of the application. You should parse the input file,
  * create the different components of the application, and run the system.
@@ -65,7 +52,10 @@ public class Main {
 				t4.join();
 				t5.join();
 			}
-			catch (InterruptedException e){}
+			catch (InterruptedException e){
+				System.out.println(e.getMessage());
+			}
+			Diary d=Diary.getInstance();
 			Gson g = new Gson();
 			Writer w = new FileWriter(args[1]);
 			w.write(g.toJson(Diary.getInstance()));

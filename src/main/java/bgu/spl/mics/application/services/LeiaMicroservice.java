@@ -8,6 +8,7 @@ import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.ExploseEvent;
+import bgu.spl.mics.application.messages.StartMessage;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.passiveObjects.Diary;
@@ -38,29 +39,29 @@ public class LeiaMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        System.out.println("Leia attacks size: "+ attacks.length);
+        sendEvent(new StartMessage());
         for (int i = 0; i < attacks.length; i++) {
             AttackEvent add = new AttackEvent(attacks[i]);
+            System.out.println("Leia sends message type: "+ add.getClass()+ " duration: "+add.getDuration()+" serials: "+ add.getSerials().toString()  );
             Future fut = sendEvent(add);
             futures.put(add, fut);
         }
         Iterator<Map.Entry<Message, Future>> iterator = futures.entrySet().iterator();
         while (iterator.hasNext()) { //chack if all attack are finished
             iterator.next().getValue().get();
-            //now send to r2d2 message
+        }
+            System.out.println(" Hansolo and c3po finished attacks, leia calls r2d2 to determinate");
             Future fut = sendEvent(new DeactivationEvent());
             fut.get(); //wait until event solved.
-
+        System.out.println("deactivation future is "+ fut.isDone());
+            System.out.println(" r2d2 finished deactivate, leia calls lando to explode");
             //after R2D2 finished, send message to lando.
             Future explosion = sendEvent(new ExploseEvent());
             explosion.get();
+            System.out.println(" lando finished explode");
             //after she finished she do nothing untill shutdown.
-        }
+
     }
 
 

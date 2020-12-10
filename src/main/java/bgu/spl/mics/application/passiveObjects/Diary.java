@@ -24,6 +24,8 @@ public class Diary {
     private long C3POTerminate;
     private long R2D2Terminate;
     private long LandoTerminate;
+    private long terminateTime;
+    private long finishTime;
 
     private Diary( ){
         totalAttack=new AtomicInteger(0);
@@ -35,44 +37,56 @@ public class Diary {
         C3POTerminate=0;
         R2D2Terminate=0;
         LandoTerminate=0;
+        terminateTime=0;
+        finishTime=0;
     }
     public static Diary getInstance(){
         if(INSTANCE==null)
             INSTANCE=new Diary();
         return INSTANCE;
     }
-    public void setTotalAttack(int total){
-
-
-        while(!totalAttack.compareAndSet(totalAttack.get(), total));  }
 
     public void setFinish(MicroService obj){
-        if(obj instanceof HanSoloMicroservice)
-            HanSoloFinish=System.currentTimeMillis();
-        else if(obj instanceof C3POMicroservice)
-           C3POFinish=System.currentTimeMillis();
+        if(finishTime==0)
+          finishTime=System.currentTimeMillis();
+        if(obj instanceof HanSoloMicroservice) {
+            HanSoloFinish = System.currentTimeMillis();
+            System.out.println(" wrote hansolo finish in diary "+ HanSoloFinish );
+        }
+        else if(obj instanceof C3POMicroservice) {
+            C3POFinish = System.currentTimeMillis();
+            System.out.println(" wrote hansolo finish in diary "+ C3POFinish );
+        }
     }
     public void setR2D2Deactivate(MicroService obj) {
-        if(obj instanceof R2D2Microservice)
-            R2D2Deactivate=System.currentTimeMillis();
+        if(obj instanceof R2D2Microservice) {
+            R2D2Deactivate = System.currentTimeMillis();
+            System.out.println(" wrote deactivation in diary "+ System.currentTimeMillis() );
+        }
     }
-    public void Terminate(MicroService obj){
-        long terminate = System.currentTimeMillis();
-        C3POTerminate = terminate;
-        HanSoloTerminate = terminate;
-        LeiaTerminate = terminate;
-        R2D2Terminate = terminate;
-        LandoTerminate = terminate;
+    public void Terminate(MicroService obj) {
+        if(terminateTime==0);
+        terminateTime = System.currentTimeMillis();
+        if (C3POMicroservice.class.equals(obj.getClass())) {
+            C3POTerminate = terminateTime;
+        }
+        else if (HanSoloMicroservice.class.equals(obj.getClass())) {
+            HanSoloTerminate = terminateTime;
+        }
+        else if (R2D2Microservice.class.equals(obj.getClass())) {
+            R2D2Terminate = terminateTime;
+        }
+        else if (LeiaMicroservice.class.equals(obj.getClass())) {
+            LeiaTerminate = terminateTime;
+        }
+        else if (LandoMicroservice.class.equals(obj.getClass())) {
+            LandoTerminate = terminateTime;
+        }
     }
-    public void addAttack(){while(!totalAttack.compareAndSet(totalAttack.get(),totalAttack.get()+1));}
-    public int getTotalAttack(){ return totalAttack.get(); }
-    public long getHanSoloFinish(HanSoloMicroservice obj){return HanSoloFinish;}
-    public long getC3POFinish(C3POMicroservice obj){return C3POFinish;}
-    public long getR2D2Deactivate(C3POMicroservice obj){return R2D2Deactivate;}
-    public long getLeiaTerminate(LeiaMicroservice obj){return LeiaTerminate;}
-    public long getHanSoloTerminate(HanSoloMicroservice obj){return HanSoloTerminate;}
-    public long getC3POTerminate(C3POMicroservice obj){return C3POTerminate;}
-    private long getR2D2Terminate(R2D2Microservice obj){return R2D2Terminate;}
-    private long getLandoTerminate(LandoMicroservice obj){return LandoTerminate;}
+    public void addAttack(){
+        while(!totalAttack.compareAndSet(totalAttack.get(),totalAttack.get()+1));
+        if(totalAttack.get()==2)
+            finishTime=System.currentTimeMillis();
+    }
 
 }

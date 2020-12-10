@@ -3,8 +3,8 @@ package bgu.spl.mics;
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.TerminateMessage;
 import bgu.spl.mics.application.passiveObjects.Diary;
-
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -27,7 +27,7 @@ import java.util.HashMap;
 public abstract class MicroService implements Runnable {
     private String name;
     private MessageBusImpl messageBus;
-    private HashMap< Class<? extends Message>, Callback> callbacks;
+    private HashMap< Class<? extends Message> ,Callback> callbacks;
     private boolean toStop;
     private Diary diary;
 
@@ -66,7 +66,10 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
     	messageBus.subscribeEvent(type , this);
-    	callbacks.put(type , callback);
+        System.out.println("add callback "+callback.getClass().getName()+ " to queue of  " +type.getName());
+        if(!callbacks.containsKey(type))
+             callbacks.put(type,callback);
+
     }
 
     /**
@@ -91,7 +94,8 @@ public abstract class MicroService implements Runnable {
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
         messageBus.subscribeBroadcast(type , this);
-        callbacks.put(type , callback);
+        if(!callbacks.containsKey(type))
+            callbacks.put(type,callback);
     }
 
     /**
@@ -131,7 +135,8 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-    	messageBus.complete(e , result);
+        System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
+        messageBus.complete(e , result);
     }
 
     /**
@@ -161,18 +166,29 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
+        System.out.println(Thread.currentThread().getName() +" as "+ this.getName());
         messageBus.register(this);
-        subscribeBroadcast(TerminateMessage.class, c -> { toStop=true;}) ;
+        subscribeBroadcast(TerminateMessage.class, c -> {
+            toStop=true;
+            diary.Terminate(this);
+        }) ;
         initialize();
         Message message;
         while(!toStop){
             message = messageBus.awaitMessage(this);
             if(message != null) {
                 try {
-                    callbacks.get(message).call(message);
+                    System.out.println(this.getName()+" start call function for event "+message.getClass().getName());
+                    System.out.println(" callback is "+ callbacks.get(message.getClass()));
+                    callbacks.get(message.getClass()).call(message);
+                    System.out.println(this.getName()+" finished call function for event "+ callbacks.get(message.getClass()).getClass());
                 }
-                catch (Exception e) {}
+                catch (Exception e) {
+                    System.out.println(" exception problem: "+e.getMessage());
+                }
             }
+            else
+                diary.setFinish(this);
         }
         diary.setFinish(this);
     }

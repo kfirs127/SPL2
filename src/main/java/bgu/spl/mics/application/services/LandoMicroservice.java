@@ -32,7 +32,7 @@ public class LandoMicroservice  extends MicroService {
             }
             catch (InterruptedException e){}
             complete(c,true);
-            super.sendBroadcast(new TerminateMessage() );
+            super.sendBroadcast(new TerminateMessage());
         };
         super.subscribeEvent(ExploseEvent.class,explotion);
        

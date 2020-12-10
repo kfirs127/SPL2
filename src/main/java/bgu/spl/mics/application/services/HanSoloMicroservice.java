@@ -30,16 +30,17 @@ public class HanSoloMicroservice extends MicroService {
             @Override
             public void call(AttackEvent c) {
                 try {
+                    while(!Ewoks.getInstance().getSupply(c.getSerials()));
                     Ewoks.getInstance().getSupply(c.getSerials());
-                }
-                catch (NullPointerException ignored){}
-                try {
                     Thread.sleep(c.getDuration());
+                    Ewoks.getInstance().releaseSupply(c.getSerials());
+                    HanSoloMicroservice.super.complete(c, true);
+                    diary.addAttack();
                 }
-                catch (InterruptedException ignored){}
-                Ewoks.getInstance().releaseSupply(c.getSerials());
-                HanSoloMicroservice.super.complete(c, true);
-                diary.addAttack();
+                catch (NullPointerException ignored){
+                    System.out.println(ignored.getMessage());
+                }
+                catch (InterruptedException ignored){ System.out.println(ignored.getMessage());}
             }
         };
         // end message
