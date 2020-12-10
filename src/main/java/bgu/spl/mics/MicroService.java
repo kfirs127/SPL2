@@ -66,7 +66,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
     	messageBus.subscribeEvent(type , this);
-        System.out.println("add callback "+callback.getClass().getName()+ " to queue of  " +type.getName());
+      //  System.out.println("add callback "+callback.getClass().getName()+ " to queue of  " +type.getName());
         if(!callbacks.containsKey(type))
              callbacks.put(type,callback);
 
@@ -122,6 +122,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final void sendBroadcast(Broadcast b) {
     	messageBus.sendBroadcast(b);
+     //   System.out.println(this.getName()+ "finished broadcast");
     }
 
     /**
@@ -135,7 +136,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
+      //  System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
         messageBus.complete(e , result);
     }
 
@@ -166,7 +167,7 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-        System.out.println(Thread.currentThread().getName() +" as "+ this.getName());
+      //  System.out.println(Thread.currentThread().getName() +" as "+ this.getName());
         messageBus.register(this);
         subscribeBroadcast(TerminateMessage.class, c -> {
             toStop=true;
@@ -175,22 +176,23 @@ public abstract class MicroService implements Runnable {
         initialize();
         Message message;
         while(!toStop){
+          //  System.out.println(this.getName() +"start run looop");
             message = messageBus.awaitMessage(this);
             if(message != null) {
                 try {
-                    System.out.println(this.getName()+" start call function for event "+message.getClass().getName());
-                    System.out.println(" callback is "+ callbacks.get(message.getClass()));
+                 //   System.out.println(this.getName()+" start call function for event "+message.getClass().getName());
+                 //   System.out.println(" callback is "+ callbacks.get(message.getClass()));
                     callbacks.get(message.getClass()).call(message);
-                    System.out.println(this.getName()+" finished call function for event "+ callbacks.get(message.getClass()).getClass());
+                 //   System.out.println(this.getName()+" finished call function for event "+ callbacks.get(message.getClass()).getClass());
+                 //   System.out.println(this.getName()+ " finished handle message"+message.getClass().getName());
                 }
                 catch (Exception e) {
-                    System.out.println(" exception problem: "+e.getMessage());
+                //    System.out.println(this.getName()+" exception problem: "+e);
                 }
             }
-            else
-                diary.setFinish(this);
         }
         diary.setFinish(this);
+        messageBus.unregister(this);
     }
 
     private Message getMessage(){ return messageBus.awaitMessage(this); }

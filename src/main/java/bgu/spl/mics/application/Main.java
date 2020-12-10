@@ -55,7 +55,6 @@ public class Main {
 			catch (InterruptedException e){
 				System.out.println(e.getMessage());
 			}
-			Diary d=Diary.getInstance();
 			Gson g = new Gson();
 			Writer w = new FileWriter(args[1]);
 			w.write(g.toJson(Diary.getInstance()));

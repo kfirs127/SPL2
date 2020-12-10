@@ -32,7 +32,7 @@ public class R2D2Microservice extends MicroService {
             try{
                 Thread.sleep(duration);
             }
-            catch (InterruptedException e){}
+            catch (InterruptedException e){ System.out.println("exception in r2d2 call");}
             complete(c,true);
             diary.setR2D2Deactivate(this);
     };

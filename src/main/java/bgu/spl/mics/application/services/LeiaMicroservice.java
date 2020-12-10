@@ -39,11 +39,11 @@ public class LeiaMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        System.out.println("Leia attacks size: "+ attacks.length);
+       // System.out.println("Leia attacks size: "+ attacks.length);
         sendEvent(new StartMessage());
         for (int i = 0; i < attacks.length; i++) {
             AttackEvent add = new AttackEvent(attacks[i]);
-            System.out.println("Leia sends message type: "+ add.getClass()+ " duration: "+add.getDuration()+" serials: "+ add.getSerials().toString()  );
+         //   System.out.println("Leia sends message type: "+ add.getClass()+ " duration: "+add.getDuration()+" serials: "+ add.getSerials().toString()  );
             Future fut = sendEvent(add);
             futures.put(add, fut);
         }
@@ -51,15 +51,15 @@ public class LeiaMicroservice extends MicroService {
         while (iterator.hasNext()) { //chack if all attack are finished
             iterator.next().getValue().get();
         }
-            System.out.println(" Hansolo and c3po finished attacks, leia calls r2d2 to determinate");
+         // Syst  em.out.println(" Hansolo and c3po finished attacks, leia calls r2d2 to determinate");
             Future fut = sendEvent(new DeactivationEvent());
             fut.get(); //wait until event solved.
-        System.out.println("deactivation future is "+ fut.isDone());
-            System.out.println(" r2d2 finished deactivate, leia calls lando to explode");
+       //   System.out.println("deactivation future is "+ fut.isDone());
+         //   System.out.println(" r2d2 finished deactivate, leia calls lando to explode");
             //after R2D2 finished, send message to lando.
             Future explosion = sendEvent(new ExploseEvent());
             explosion.get();
-            System.out.println(" lando finished explode");
+          //  System.out.println(" lando finished explode");
             //after she finished she do nothing untill shutdown.
 
     }

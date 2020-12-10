@@ -30,7 +30,7 @@ public class LandoMicroservice  extends MicroService {
             try{
                 Thread.sleep(duration);
             }
-            catch (InterruptedException e){}
+            catch (InterruptedException e){  System.out.println("exception in lando call"); }
             complete(c,true);
             super.sendBroadcast(new TerminateMessage());
         };

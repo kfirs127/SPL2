@@ -51,17 +51,17 @@ public class Diary {
           finishTime=System.currentTimeMillis();
         if(obj instanceof HanSoloMicroservice) {
             HanSoloFinish = System.currentTimeMillis();
-            System.out.println(" wrote hansolo finish in diary "+ HanSoloFinish );
+         //   System.out.println(" wrote hansolo finish in diary "+ HanSoloFinish );
         }
         else if(obj instanceof C3POMicroservice) {
             C3POFinish = System.currentTimeMillis();
-            System.out.println(" wrote hansolo finish in diary "+ C3POFinish );
+         //   System.out.println(" wrote hansolo finish in diary "+ C3POFinish );
         }
     }
     public void setR2D2Deactivate(MicroService obj) {
         if(obj instanceof R2D2Microservice) {
             R2D2Deactivate = System.currentTimeMillis();
-            System.out.println(" wrote deactivation in diary "+ System.currentTimeMillis() );
+          //  System.out.println(" wrote deactivation in diary "+ System.currentTimeMillis() );
         }
     }
     public void Terminate(MicroService obj) {

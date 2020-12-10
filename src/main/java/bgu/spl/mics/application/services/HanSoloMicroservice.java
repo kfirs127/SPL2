@@ -37,10 +37,8 @@ public class HanSoloMicroservice extends MicroService {
                     HanSoloMicroservice.super.complete(c, true);
                     diary.addAttack();
                 }
-                catch (NullPointerException ignored){
-                    System.out.println(ignored.getMessage());
-                }
-                catch (InterruptedException ignored){ System.out.println(ignored.getMessage());}
+                catch (NullPointerException ignored){  System.out.println("exception in hansolo call"); }
+                catch (InterruptedException ignored){  System.out.println("exception in hansolo call");}
             }
         };
         // end message

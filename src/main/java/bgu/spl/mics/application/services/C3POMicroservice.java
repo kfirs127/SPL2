@@ -30,14 +30,14 @@ public class C3POMicroservice extends MicroService {
             @Override
             public void call(AttackEvent c) {
                 try {
-                    System.out.println(this.getClass().getName()+" try get supply");
+                 //   System.out.println(this.getClass().getName()+" try get supply");
                     while(!Ewoks.getInstance().getSupply(c.getSerials()));
                     Ewoks.getInstance().releaseSupply(c.getSerials());
-                    System.out.println("sent event "+c.getClass().getName() +" to complete");
+                  //  System.out.println("sent event "+c.getClass().getName() +" to complete");
                     C3POMicroservice.super.complete(c, true);
                     diary.addAttack();
                 }
-                catch (NullPointerException ignored){}
+                catch (NullPointerException ignored){ System.out.println("exception in c3po call");}
 
             }
         };
