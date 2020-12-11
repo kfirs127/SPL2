@@ -15,7 +15,7 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException {
 		Gson gson=new Gson();
-		BufferedReader reader = new BufferedReader(new FileReader(args[0]));
+		Reader reader = new BufferedReader(new FileReader(args[0]));
 		Input attackobj = gson.fromJson(reader, Input.class);
 		long ewoks=attackobj.getEwoks();
 		long landoD=attackobj.getLando();

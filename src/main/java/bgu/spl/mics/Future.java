@@ -18,7 +18,7 @@ public class Future<T> {
 	 */
 	public Future() {
 		isDone = false;
-		result = null;
+		result = null;  // if there is no result, the result need to be null.
 	}
 	
 	/**
@@ -33,7 +33,8 @@ public class Future<T> {
 		while(!isDone){
 			try {
 				wait();
-			}catch (Exception e){}
+			}
+			catch (Exception e){}
 		}
 		return result;
 	}
@@ -44,7 +45,7 @@ public class Future<T> {
 	public synchronized void resolve (T result) {
 		this.result = result;
 		isDone = true;
-		notifyAll();
+		notifyAll(); // notify thar result has came.
 	}
 	
 	/**
@@ -67,7 +68,6 @@ public class Future<T> {
      */
 	public synchronized T get(long timeout, TimeUnit unit){
         if(isDone) return result;
-        // check if syncronized or not
         try {
         	while(!isDone){
         		wait(unit.toMicros(timeout));

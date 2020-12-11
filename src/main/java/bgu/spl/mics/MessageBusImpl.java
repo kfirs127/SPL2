@@ -3,9 +3,9 @@ package bgu.spl.mics;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.services.*;
-
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,8 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
-
-	private static MessageBusImpl INSTANCE=null;
+	private static MessageBusImpl INSTANCE = null;
 	private HashMap< MicroService,  BlockingQueue<Message>> queues;
 	private HashMap<Class<? extends Message>, BlockingQueue< MicroService>> subscribe;
 	private HashMap<Message, BlockingQueue<Future>> futureObjects;
@@ -25,163 +24,147 @@ public class MessageBusImpl implements MessageBus {
 	private Diary diary;
 
 	public synchronized static MessageBusImpl getInstance(){
-		if(INSTANCE==null)
-			INSTANCE=new MessageBusImpl();
+		if(INSTANCE == null) INSTANCE = new MessageBusImpl();
 		return INSTANCE;
 	}
 	private MessageBusImpl(){
-		completed=new AtomicInteger(0);
-		queues= new HashMap<>();
-		subscribe=new HashMap<>();
-		futureObjects=new HashMap<>();
-		subs=new AtomicInteger();
+		completed = new AtomicInteger(0);
+		queues = new HashMap<>();
+		subscribe = new HashMap<>();
+		futureObjects = new HashMap<>();
+		subs = new AtomicInteger();
 		subs.set(0);
-		diary =Diary.getInstance();
+		diary = Diary.getInstance();
 	}
 
 	@Override
-	public synchronized  <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)  {
+	public synchronized  <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m){
 		subscribe(type, m);
 		subs.compareAndSet(subs.get(),subs.get()+1);
-	//	System.out.println("subscribers: "+subs);
-	//	System.out.println(m.getName() + " subscribe to "+type + " events");
-		if(subs.get()==4) {
-		//	System.out.println(" there are 4 thread subscribed so call leia up");
-			start(true);
-		}
+		if(subs.get()==4) start(true);
 	}
 
 	@Override
-	public synchronized void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-	//	System.out.println(m.getName() + " subscribe to "+type + " events");
-		subscribe (type,m);
-    }
+	public synchronized void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) { subscribe (type,m); }
 
 	@Override @SuppressWarnings("unchecked")
 	public  <T> void complete(Event<T> e, T result) {
-	//	System.out.println("resolve "+e.getClass() +" event.  the resolt is: " + result.toString());
 		Iterator<Future> iter=futureObjects.get(e).iterator();
 		while(iter.hasNext()){
 			iter.next().resolve(result);
 		}
 		while(!completed.compareAndSet(completed.get(),completed.get()+1));
-		//System.out.println("completed tasks: "+completed);
-
 	}
 
 	@Override
 	public synchronized void sendBroadcast(Broadcast b) {
-
-		//System.out.println("broadcast of type "+ b.getClass() + " has sent.");
-		//System.out.println("num of subscribers to broadcast "+b.getClass().getName() + " is : "+ subscribe.get(b.getClass()).size());
-		for(MicroService micro: subscribe.get(b.getClass())) {
+		for (MicroService micro : subscribe.get(b.getClass())) {
 			queues.get(micro).add(b);
-		//	System.out.println("added broadcast of type "+ b.getClass()+ " to "+ micro.getName());
 		}
-		}
+	}
 
 	@Override
 	public synchronized  <T> Future<T> sendEvent(Event<T> e) {
-
-		if (e.getClass().equals(StartMessage.class) && subs.get() < 4) {
-		//	System.out.println("not all subscribers registerd so call start function");
-			start(false); //make leia start only after everyone are subscribe to queues
+		if (e.getClass().equals(StartMessage.class) && subs.get() < 4) { //make leia start only after everyone are subscribe to queues
+			start(false);
 			return null;
 		}
-		//System.out.println("to message type " + e.getClass() + " num of subscribers is: " + subscribe.get(e.getClass()).size());
-		//System.out.println("num of subscribers to class" + e.getClass().getName() + " is " + subscribe.get(e.getClass()).size());
-		else {
+		if(subscribe.get(e.getClass())==null)
+			throw new NullPointerException("no subscribers to send to");
 			MicroService m = subscribe.get(e.getClass()).peek();
-		//	System.out.println(m.getName() + " chosen from the queue's head");
-			try {
-				subscribe.get(e.getClass()).put(subscribe.get(e.getClass()).take());
-				//System.out.println("Readd " + m.getName() + " to the event " + e.getClass() + " subscribers queue");
-			} catch (InterruptedException interruptedException) {
-				System.out.println("exception in msgbs send event");
-			}
-
-			//System.out.println(" add to queue of " + m.getName() + e.getClass().getName() + " event");
-			queues.get(m).add(e);
-			//System.out.println("send event " + e.getClass() + " to " + m.getName() + " queue");
-			Future ret = new Future();
-			futureObjects.put(e, new LinkedBlockingQueue<Future>());
-			futureObjects.get(e).add(ret);
-			return ret;
+		try {
+			subscribe.get(e.getClass()).put(subscribe.get(e.getClass()).take());
 		}
+		catch (InterruptedException interruptedException) {
+			System.out.println("exception in messageBus send event");
+		}
+		queues.get(m).add(e);
+		Future ret = new Future();
+		futureObjects.put(e, new LinkedBlockingQueue<Future>());
+		futureObjects.get(e).add(ret);
+		return ret;
 	}
 
 	@Override
-	public synchronized void register(MicroService m) {
-		queues.put(m, new LinkedBlockingQueue<>());
-	//	System.out.println(m.getName() +" registered to messageBus");
-
-	}
+	public synchronized void register(MicroService m) { queues.put(m, new LinkedBlockingQueue<>()); }
 
 	@Override
 	public void unregister(MicroService m) {
-		queues.remove(m.getClass());
-		if(m.getClass().equals(HanSoloMicroservice.class)|m.getClass().equals(C3POMicroservice.class)) {
+			for (Map.Entry<Class<? extends Message>, BlockingQueue<MicroService>> pair : subscribe.entrySet()) {
+				if (subscribe.get(pair.getKey()).contains(m)) {
+					subscribe.get(pair.getKey()).remove(m);
+				}
+			}
+			if (queues.containsKey(m)) {
+				queues.remove(m);
+			}
+			subs.compareAndSet(subs.get(), subs.get() - 1);
+
+		/*
+		if(m.getClass().equals(HanSoloMicroservice.class)) {
+			String str=AttackEvent.class.getName();
+			int str1=subscribe.get(AttackEvent.class).size();
 			if(subscribe.get(AttackEvent.class).contains(m))
-			subscribe.get(AttackEvent.class).remove(m);
+				subscribe.get(AttackEvent.class).remove(m);
+		}
+		else if(m.getClass().equals(C3POMicroservice.class)){
+			if(subscribe.get(AttackEvent.class).contains(m))
+				subscribe.get(AttackEvent.class).remove(m);
 		}
 		else if(m.getClass().equals(R2D2Microservice.class)) {
 			if(subscribe.get(DeactivationEvent.class).contains(m))
-			subscribe.get(DeactivationEvent.class).remove(m);
+				subscribe.get(DeactivationEvent.class).remove(m);
 		}
 		else if(m.getClass().equals(LandoMicroservice.class)) {
 			if(subscribe.get(ExploseEvent.class).contains(m))
-			subscribe.get(ExploseEvent.class).remove(m);
+				subscribe.get(ExploseEvent.class).remove(m);
 		}
-		subscribe.get(TerminateMessage.class).remove(m);
-
-
-		//System.out.println(m.getName() +" registered to messageBus");
+		if (subscribe.get(TerminateMessage.class).contains(m))
+				subscribe.get(TerminateMessage.class).remove(m);
+*/
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m){
-		//System.out.println(m.getName()+ " awaits message ");
 		try {
-				synchronized (queues.get(m)) {
+			if(!queues.containsKey(m))
+				return null;
+			synchronized (queues.get(m)) {
 				Message mess = queues.get(m).take(); //returns the first message available
-			//	System.out.println(" returns message" + mess.toString() + "to" + m.getName());
 				return mess;
 			}
-			}
+		}
 		catch(InterruptedException e){
-			System.out.println("exception in msgbs await message");
+			System.out.println("exception in messageBus await message");
 			return null;
-			}
-
+		}
 	}
 
 	private synchronized <T> void subscribe(Class<? extends Message> type, MicroService m){
-		//System.out.println("try to subscribe " + m.getClass()+ " to class "+ type);
-		if (subscribe.containsKey(type)) {
+		if (subscribe.containsKey(type)){
 			try {
 				subscribe.get(type).put(m);
-			} catch (InterruptedException e) {	System.out.println("exception in msgbs subscribe");}
+			}
+			catch (InterruptedException e) { System.out.println("exception in messageBus subscribe"); }
 		}
 		else {
 			try {
 				subscribe.put(type, new LinkedBlockingQueue<MicroService>());
 				subscribe.get(type).put(m);
-			} catch (InterruptedException e) {
-				System.out.println("exception in msgbs subscribe");
+			}
+			catch (InterruptedException e) {
+				System.out.println("exception in messageBus subscribe");
 			}
 		}
-	//	System.out.println(m.getName()+ " succeeded to subscribe "+ type.getName());
-	//	System.out.println("number of subscribers to event "+type.getName()+" is now "+ subscribe.get(type).size() );
 	}
-	private void start(boolean val) {
 
+	private void start(boolean val) {
 		if (!val) {
 			try {
-			//	System.out.println("leia waits in thread number " + Thread.currentThread().getName());
 				wait();
 			} catch (InterruptedException e) {System.out.println("exception in msgbs start");}
-		} else {
-			//System.out.println(Thread.currentThread().getName() + " wakes leia up ");
+		}
+		else {
 			notifyAll(); //will notify leia's thread it can start send messages after everyone are subscribed.
 		}
 	}

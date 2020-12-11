@@ -1,7 +1,6 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Future;
-
 import java.util.concurrent.TimeUnit;
 
 public class StringFuture extends Future<String>{  // class for test , copy the action of future

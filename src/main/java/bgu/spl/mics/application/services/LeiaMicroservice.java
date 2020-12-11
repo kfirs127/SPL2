@@ -1,4 +1,5 @@
 package bgu.spl.mics.application.services;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,39 +28,28 @@ public class LeiaMicroservice extends MicroService {
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
 		this.attacks = attacks;
-		solved=new AtomicInteger();
-		futures= new HashMap<>();
-		diary=Diary.getInstance();
+		solved = new AtomicInteger();
+		futures = new HashMap<>();
+		diary = Diary.getInstance();
     }
-
-
 
     @Override
     protected void initialize() {
-       // System.out.println("Leia attacks size: "+ attacks.length);
         sendEvent(new StartMessage());
         for (int i = 0; i < attacks.length; i++) {
             AttackEvent add = new AttackEvent(attacks[i]);
-         //   System.out.println("Leia sends message type: "+ add.getClass()+ " duration: "+add.getDuration()+" serials: "+ add.getSerials().toString()  );
             Future fut = sendEvent(add);
             futures.put(add, fut);
         }
         sendBroadcast(new FinishEvent());
         Iterator<Map.Entry<Message, Future>> iterator = futures.entrySet().iterator();
-        while (iterator.hasNext()) { //chack if all attack are finished
+        while (iterator.hasNext()) {  //check if all attack are finished
             iterator.next().getValue().get();
         }
-         // Syst  em.out.println(" Hansolo and c3po finished attacks, leia calls r2d2 to determinate");
-            Future fut = sendEvent(new DeactivationEvent());
-            fut.get(); //wait until event solved.
-       //   System.out.println("deactivation future is "+ fut.isDone());
-         //   System.out.println(" r2d2 finished deactivate, leia calls lando to explode");
-            //after R2D2 finished, send message to lando.
-            Future explosion = sendEvent(new ExploseEvent());
-            explosion.get();
-          //  System.out.println(" lando finished explode");
-            //after she finished she do nothing untill shutdown.
-
+        Future fut = sendEvent(new DeactivationEvent());
+        fut.get();  //wait until event solved.
+        Future explosion = sendEvent(new ExploseEvent());
+        explosion.get();
     }
 
 

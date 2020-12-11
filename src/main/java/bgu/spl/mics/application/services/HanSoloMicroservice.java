@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.services;
 
-
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
@@ -31,11 +30,11 @@ public class HanSoloMicroservice extends MicroService {
             @Override
             public void call(AttackEvent c) {
                 try {
-                    while(!Ewoks.getInstance().getSupply(c.getSerials()));
-                    Thread.sleep(c.getDuration());
-                    Ewoks.getInstance().releaseSupply(c.getSerials());
-                    HanSoloMicroservice.super.complete(c, true);
-                    diary.addAttack();
+                    while(!Ewoks.getInstance().getSupply(c.getSerials()));  // get the ewoks for war
+                    Thread.sleep(c.getDuration());                  // simulate the attack by sleeping.
+                    Ewoks.getInstance().releaseSupply(c.getSerials());  // return the ewoks from the war.
+                    HanSoloMicroservice.super.complete(c, true);   // finish attack.
+                    diary.addAttack();                               // tell the diary we finish attack.
                 }
                 catch (NullPointerException ignored){  System.out.println("exception in hansolo call1"); }
                 catch (InterruptedException ignored){  System.out.println("exception in hansolo call2");}

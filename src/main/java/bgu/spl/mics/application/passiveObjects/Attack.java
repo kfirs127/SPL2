@@ -1,8 +1,6 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import java.util.LinkedList;
 import java.util.List;
-
 
 /**
  * Passive data-object representing an attack object.
@@ -10,6 +8,7 @@ import java.util.List;
  * <p>
  * YDo not add any additional members/method to this class (except for getters).
  */
+
 public class Attack {
     final List<Integer> serials;
     final int duration;

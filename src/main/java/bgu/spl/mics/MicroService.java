@@ -1,10 +1,8 @@
 package bgu.spl.mics;
 
-import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.TerminateMessage;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -24,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Only private fields and methods may be added to this class.
  * <p>
  */
+
 public abstract class MicroService implements Runnable {
     private String name;
     private MessageBusImpl messageBus;
@@ -68,10 +67,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
     	messageBus.subscribeEvent(type , this);
-      //  System.out.println("add callback "+callback.getClass().getName()+ " to queue of  " +type.getName());
-        if(!callbacks.containsKey(type))
-             callbacks.put(type,callback);
-
+        if(!callbacks.containsKey(type)) callbacks.put(type,callback);
     }
 
     /**
@@ -96,8 +92,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
         messageBus.subscribeBroadcast(type , this);
-        if(!callbacks.containsKey(type))
-            callbacks.put(type,callback);
+        if(!callbacks.containsKey(type)) callbacks.put(type,callback);
     }
 
     /**
@@ -122,10 +117,7 @@ public abstract class MicroService implements Runnable {
      * <p>
      * @param b The broadcast message to send
      */
-    protected final void sendBroadcast(Broadcast b) {
-    	messageBus.sendBroadcast(b);
-     //   System.out.println(this.getName()+ "finished broadcast");
-    }
+    protected final void sendBroadcast(Broadcast b) { messageBus.sendBroadcast(b); }
 
     /**
      * Completes the received request {@code e} with the result {@code result}
@@ -138,7 +130,6 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        //  System.out.println(this.getName() + " completed an event "+ e.getClass().getName());
         try {
             messageBus.complete(e, result);
         }
@@ -174,32 +165,23 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-      //  System.out.println(Thread.currentThread().getName() +" as "+ this.getName());
         messageBus.register(this);
         subscribeBroadcast(TerminateMessage.class, c -> {
-            toStop=true;
+            toStop = true;
             diary.Terminate(this,startTime);
         }) ;
         initialize();
         Message message;
-        while(!toStop){
-
-          //  System.out.println(this.getName() +"start run looop");
+        while(!toStop){  // while there is no need to terminate.
             message = messageBus.awaitMessage(this);
             if(message != null) {
                 try {
-                 //   System.out.println(this.getName()+" start call function for event "+message.getClass().getName());
-                 //   System.out.println(" callback is "+ callbacks.get(message.getClass()));
                     callbacks.get(message.getClass()).call(message);
-                 //   System.out.println(this.getName()+" finished call function for event "+ callbacks.get(message.getClass()).getClass());
-                 //   System.out.println(this.getName()+ " finished handle message"+message.getClass().getName());
                 }
-                catch (Exception e) {
-                //    System.out.println(this.getName()+" exception problem: "+e);
-                }
+                catch (Exception e) {}
             }
         }
-        messageBus.unregister(this);
+        messageBus.unregister(this);  // this is the end of the microService, so he is need to unRegister.
     }
 
     private Message getMessage(){ return messageBus.awaitMessage(this); }

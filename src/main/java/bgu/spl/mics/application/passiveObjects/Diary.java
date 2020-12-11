@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.passiveObjects;
 
-
-import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.services.*;
 
@@ -24,8 +22,6 @@ public class Diary {
     private long C3POTerminate;
     private long R2D2Terminate;
     private long LandoTerminate;
-   // private long terminateTime;
-   // private long finishTime;
 
     private Diary( ){
         totalAttack=new AtomicInteger(0);
@@ -37,9 +33,8 @@ public class Diary {
         C3POTerminate=0;
         R2D2Terminate=0;
         LandoTerminate=0;
-      //  terminateTime=0;
-      //  finishTime=0;
     }
+
     public static Diary getInstance(){
         if(INSTANCE==null)
             INSTANCE=new Diary();
@@ -47,46 +42,56 @@ public class Diary {
     }
 
     public void setFinish(MicroService obj,long start){
-       // if(finishTime==0)
-        //  finishTime=System.currentTimeMillis();
-        if(obj instanceof HanSoloMicroservice) {
-            HanSoloFinish = System.currentTimeMillis()-start;
-         //   System.out.println(" wrote hansolo finish in diary "+ HanSoloFinish );
-        }
-        else if(obj instanceof C3POMicroservice) {
-            C3POFinish = System.currentTimeMillis()-start;
-         //   System.out.println(" wrote hansolo finish in diary "+ C3POFinish );
-        }
+        if(obj instanceof HanSoloMicroservice) HanSoloFinish = System.currentTimeMillis() - start;
+        else if(obj instanceof C3POMicroservice) C3POFinish = System.currentTimeMillis() - start;
     }
     public void setR2D2Deactivate(MicroService obj,long start) {
-        if(obj instanceof R2D2Microservice) {
-            R2D2Deactivate = System.currentTimeMillis()-start;
-          //  System.out.println(" wrote deactivation in diary "+ System.currentTimeMillis() );
-        }
+        if(obj instanceof R2D2Microservice) R2D2Deactivate = System.currentTimeMillis()-start;
     }
     public void Terminate(MicroService obj,long start) {
-     //   if(terminateTime==0);
-      //  terminateTime = System.currentTimeMillis();
-        if (C3POMicroservice.class.equals(obj.getClass())) {
-            C3POTerminate = System.currentTimeMillis()-start;
-        }
-        else if (HanSoloMicroservice.class.equals(obj.getClass())) {
-            HanSoloTerminate = System.currentTimeMillis()-start;
-        }
-        else if (R2D2Microservice.class.equals(obj.getClass())) {
-            R2D2Terminate = System.currentTimeMillis()-start;
-        }
-        else if (LeiaMicroservice.class.equals(obj.getClass())) {
-            LeiaTerminate = System.currentTimeMillis()-start;
-        }
-        else if (LandoMicroservice.class.equals(obj.getClass())) {
-            LandoTerminate =System.currentTimeMillis()-start;
-        }
-    }
-    public void addAttack(){
-        while(!totalAttack.compareAndSet(totalAttack.get(),totalAttack.get()+1));
-       // if(totalAttack.get()==2)
-            //finishTime=System.currentTimeMillis();
+        if ( C3POMicroservice.class.equals(obj.getClass()) ) C3POTerminate = System.currentTimeMillis()-start;
+        else if ( HanSoloMicroservice.class.equals(obj.getClass()) ) HanSoloTerminate = System.currentTimeMillis()-start;
+        else if ( R2D2Microservice.class.equals(obj.getClass()) ) R2D2Terminate = System.currentTimeMillis()-start;
+        else if ( LeiaMicroservice.class.equals(obj.getClass()) ) LeiaTerminate = System.currentTimeMillis()-start;
+        else if ( LandoMicroservice.class.equals(obj.getClass()) ) LandoTerminate =System.currentTimeMillis()-start;
     }
 
+    public void addAttack(){
+        while(!totalAttack.compareAndSet(totalAttack.get(),totalAttack.get()+1));
+    }
+
+    public long getHanSoloFinish() { return HanSoloFinish; }
+
+    public long getC3POFinish() { return C3POFinish; }
+
+    public long getLandoTerminate() {
+        return LandoTerminate;
+    }
+    
+    public long getLeiaTerminate() {
+        return LeiaTerminate;
+    }
+
+    public long getHanSoloTerminate() {
+        return HanSoloTerminate;
+    }
+
+    public long getC3POTerminate() {
+        return C3POTerminate;
+    }
+
+    public long getR2D2Terminate() {
+        return R2D2Terminate;
+    }
+
+    public long getR2D2Deactivate() {
+        return R2D2Deactivate;
+    }
+    
+    public AtomicInteger getNumberOfAttacks(){
+        return totalAttack;
+    }
+
+    public void resetNumberAttacks() {
+    }
 }

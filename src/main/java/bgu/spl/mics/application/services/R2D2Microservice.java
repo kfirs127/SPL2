@@ -15,18 +15,16 @@ import bgu.spl.mics.application.passiveObjects.Diary;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class R2D2Microservice extends MicroService {
-
     private long duration;
     private Diary diary;
     public R2D2Microservice(long duration) {
         super("R2D2");
-        this.duration=duration;
-        diary=Diary.getInstance();
+        this.duration = duration;
+        diary = Diary.getInstance();
     }
 
     @Override
     protected void initialize() {
-
         //defines callback function for deactivate
         Callback <DeactivationEvent> deactivae= c -> {
             try{
